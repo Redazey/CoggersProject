@@ -2,6 +2,7 @@ package jwt_api
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"os"
 	"time"
@@ -9,24 +10,26 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-func Handler(f func(data map[string]interface{}) (string, error)) func(w http.ResponseWriter, r *http.Request) {
+func Handler(f func(data map[string]string) (bool, string, error)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			// Чтение данных из POST запроса
-			var message map[string]interface{}
+			var message map[string]string
 			err := json.NewDecoder(r.Body).Decode(&message)
+
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 			}
 
-			returned_message, err := f(message)
+			boolMsg, stringMsg, err := f(message)
 
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				http.Error(w, err.Error(), http.StatusBadRequest)
 			}
 
 			returnDataMap := map[string]interface{}{
-				"message": returned_message,
+				"status":  boolMsg,
+				"message": stringMsg,
 			}
 
 			w.Header().Set("Content-Type", "application/json")
@@ -39,7 +42,7 @@ func Handler(f func(data map[string]interface{}) (string, error)) func(w http.Re
 	}
 }
 
-func Keygen(data map[string]interface{}) (string, error) {
+func Keygen(data map[string]string) (bool, string, error) {
 
 	username := data["username"]
 
@@ -57,8 +60,36 @@ func Keygen(data map[string]interface{}) (string, error) {
 	tokenString, err := token.SignedString(secretKey)
 
 	if err != nil {
-		return "JWT token signature error", err
+		return false, "JWT token signature error", err
 	}
 
-	return tokenString, nil
+	return true, tokenString, nil
+}
+
+func TokenAuth(data map[string]string) (bool, string, error) {
+	tokenString := data["token"]
+	secretKey := []byte(os.Getenv("JWT_KEY"))
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return secretKey, nil
+	})
+
+	if err != nil {
+		return false, "Error was occured while parsing jwtToken", err
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+
+	if ok && token.Valid {
+
+		expirationTime := time.Unix(int64(claims["exp"].(float64)), 0)
+
+		if time.Now().After(expirationTime) {
+			return false, "Error was occured while authentification process", errors.New("token expired")
+		}
+	} else {
+		return false, "Error was occured while validation process", jwt.ValidationError{}
+	}
+
+	return true, "Validation successfull", nil
 }
