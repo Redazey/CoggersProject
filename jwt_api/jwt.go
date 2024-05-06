@@ -1,48 +1,14 @@
 package jwt_api
 
 import (
-	"encoding/json"
 	"errors"
-	"net/http"
 	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
-func Handler(f func(data map[string]string) (bool, string, error)) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "POST" {
-			// Чтение данных из POST запроса
-			var message map[string]string
-			err := json.NewDecoder(r.Body).Decode(&message)
-
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-			}
-
-			boolMsg, stringMsg, err := f(message)
-
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-			}
-
-			returnDataMap := map[string]interface{}{
-				"status":  boolMsg,
-				"message": stringMsg,
-			}
-
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-
-			json.NewEncoder(w).Encode(returnDataMap)
-		} else {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		}
-	}
-}
-
-func Keygen(data map[string]string) (bool, string, error) {
+func Keygen(data map[string]string) (string, error) {
 
 	username := data["username"]
 
