@@ -1,15 +1,26 @@
-package jwt_api
+package jwt
 
 import (
-	"errors"
 	"os"
 	"time"
 
+	"github.com/joho/godotenv"
+
+	"goRoadMap/internal/errorz"
+	"goRoadMap/internal/logger"
+
 	"github.com/dgrijalva/jwt-go"
+	"go.uber.org/zap"
 )
 
-func Keygen(data map[string]string) (string, error) {
+func Keygen(data map[string]string) (map[string]string, error) {
+	err := godotenv.Load("Z:/files/goRoadMap/goRoadMap/.env")
+	if err != nil {
+		logger.Fatal("Error loading .env file: ", zap.Error(err))
+		return nil, err
+	}
 
+	returnDataMap := make(map[string]string)
 	username := data["username"]
 
 	// Создаем новый JWT токен
@@ -26,13 +37,17 @@ func Keygen(data map[string]string) (string, error) {
 	tokenString, err := token.SignedString(secretKey)
 
 	if err != nil {
-		return false, "JWT token signature error", err
+		logger.Fatal("ошибка при подписи токена: ", zap.Error(err))
+		return nil, err
+	} else {
+		returnDataMap["message"] = tokenString
 	}
 
-	return true, tokenString, nil
+	return returnDataMap, nil
 }
 
-func TokenAuth(data map[string]string) (bool, string, error) {
+func TokenAuth(data map[string]string) (map[string]string, error) {
+	returnDataMap := make(map[string]string)
 	tokenString := data["token"]
 	secretKey := []byte(os.Getenv("JWT_KEY"))
 
@@ -41,7 +56,8 @@ func TokenAuth(data map[string]string) (bool, string, error) {
 	})
 
 	if err != nil {
-		return false, "Error was occured while parsing jwtToken", err
+		logger.Fatal("ошибка при чтении токена: ", zap.Error(err))
+		return nil, err
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
@@ -51,11 +67,12 @@ func TokenAuth(data map[string]string) (bool, string, error) {
 		expirationTime := time.Unix(int64(claims["exp"].(float64)), 0)
 
 		if time.Now().After(expirationTime) {
-			return false, "Error was occured while authentification process", errors.New("token expired")
+			return nil, errorz.TokenExpired
 		}
 	} else {
-		return false, "Error was occured while validation process", jwt.ValidationError{}
+		logger.Fatal("невалидный токен: ", zap.Error(jwt.ValidationError{}))
+		return nil, jwt.ValidationError{}
 	}
 
-	return true, "Validation successfull", nil
+	return returnDataMap, nil
 }
