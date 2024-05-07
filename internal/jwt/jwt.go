@@ -9,7 +9,7 @@ import (
 	"goRoadMap/internal/errorz"
 	"goRoadMap/internal/logger"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"
 )
 
