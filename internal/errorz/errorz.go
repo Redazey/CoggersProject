@@ -5,5 +5,6 @@ import (
 )
 
 var (
-	TokenExpired = errors.New("token expired")
+	TokenExpired = errors.New("tokenExpiredError")
+	UserExists   = errors.New("userAlreadyRegisteredError")
 )

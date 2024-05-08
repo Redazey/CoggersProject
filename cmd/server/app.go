@@ -20,7 +20,7 @@ func handler(f func(data map[string]string) (map[string]string, error)) func(w h
 			err := json.NewDecoder(r.Body).Decode(&message)
 
 			if err != nil {
-				logger.Fatal("ошибка при декодировании json файла: ", zap.Error(err))
+				logger.Error("ошибка при декодировании json файла: ", zap.Error(err))
 				http.Error(w, err.Error(), http.StatusBadRequest)
 			}
 
@@ -28,7 +28,7 @@ func handler(f func(data map[string]string) (map[string]string, error)) func(w h
 
 			if err != nil {
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-				logger.Fatal("ошибка при выполнении функции: ", zap.Error(err))
+				logger.Error("ошибка при выполнении функции: ", zap.Error(err))
 				return
 			}
 
@@ -45,17 +45,23 @@ func handler(f func(data map[string]string) (map[string]string, error)) func(w h
 func main() {
 	logger.Init("info")
 
+	// заворачиваем функции в функцию-декоратор handler
 	mux := http.NewServeMux()
 	keygen := handler(jwt.Keygen)
 	tokenAuth := handler(jwt.TokenAuth)
+	getLoginData := handler(db.GetLoginData)
+	newUserRegistration := handler(db.NewUserRegistration)
 
 	mux.HandleFunc("/keygen", keygen)
 	mux.HandleFunc("/tokenAuth", tokenAuth)
+	mux.HandleFunc("/getLoginData", getLoginData)
+	mux.HandleFunc("/newUserRegistration", newUserRegistration)
+
 	logger.Info("Server is running on http://localhost:8080")
 
 	err := db.InitiateTables()
 	if err != nil {
-		logger.Fatal("ошибка при инициации таблиц Users и Roles: ", zap.Error(err))
+		logger.Fatal("ошибка при инициализации БД: ", zap.Error(err))
 	} else {
 		logger.Info("Сервер запущен")
 	}
