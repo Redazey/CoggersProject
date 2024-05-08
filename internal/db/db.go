@@ -1,6 +1,8 @@
 package db
 
 import (
+	"goRoadMap/internal/errorz"
+	"goRoadMap/internal/jwt"
 	"goRoadMap/internal/logger"
 
 	"github.com/jmoiron/sqlx"
@@ -80,7 +82,7 @@ func InitiateTables() error {
 
 	stmt, err := db.Prepare("INSERT INTO roles(name) VALUES($1)")
 	if err != nil {
-		logger.Fatal("ошибка при подготовке SQL зарпоса: ", zap.Error(err))
+		logger.Error("ошибка при подготовке SQL зарпоса: ", zap.Error(err))
 		return err
 	}
 
@@ -88,7 +90,7 @@ func InitiateTables() error {
 
 	rowsCount, err := db.Query(`SELECT COUNT(*) FROM roles`)
 	if err != nil {
-		logger.Fatal("ошибка при подключении к БД", zap.Error(err))
+		logger.Error("ошибка при исполнении SQL запроса: ", zap.Error(err))
 		return err
 	}
 
@@ -98,20 +100,18 @@ func InitiateTables() error {
 		for _, role := range roles {
 			_, err = stmt.Exec(role)
 			if err != nil {
-				logger.Fatal("ошибка при исполнении SQL запроса: ", zap.Error(err))
+				logger.Error("ошибка при исполнении SQL запроса: ", zap.Error(err))
 				return err
 			}
 		}
-		logger.Info("таблица Roles заполнена")
-	} else {
-		logger.Info("таблица Roles заполнена")
 	}
+	logger.Info("таблица Roles заполнена")
 
 	logger.Info("таблицы Users и Roles успешно инициализированны")
 	return nil
 }
 
-// Добавить кэширование
+// передаем в эту функцию username и password
 func GetLoginData(message map[string]string) (map[string]string, error) {
 	db, err := dbConnect()
 
@@ -127,7 +127,7 @@ func GetLoginData(message map[string]string) (map[string]string, error) {
 		`SELECT login, password FROM users
         WHERE login = ? AND password = ?`, username, password)
 	if err != nil {
-		logger.Fatal("ошибка при исполнении SQL запроса: ", zap.Error(err))
+		logger.Error("ошибка при исполнении SQL запроса: ", zap.Error(err))
 		return nil, err
 	}
 
@@ -139,7 +139,7 @@ func GetLoginData(message map[string]string) (map[string]string, error) {
 
 		err = rows.Scan(&key, &value)
 		if err != nil {
-			logger.Fatal("ошибка при получении значение количества строк из запроса: ", zap.Error(err))
+			logger.Error("ошибка при получении значение количества строк из запроса: ", zap.Error(err))
 			return nil, err
 		}
 
@@ -149,19 +149,38 @@ func GetLoginData(message map[string]string) (map[string]string, error) {
 	return dbLoginData, nil
 }
 
-/*
-// добавить кэширование
+// передаем в эту функцию username и password
 func NewUserRegistration(message map[string]string) (map[string]string, error) {
-	username := message["username"]
-	password := message["password"]
-	getLoginData := DBConnect(GetLoginData)
-	dbLoginData = getLoginData(username, password)
 
-	if dbLoginData {
-		return errors.New("User already registered")
+	dbLoginData, err := GetLoginData(message)
+	if err != nil {
+		return nil, err
+	}
+
+	db, err := dbConnect()
+	if err != nil {
+		return nil, err
+	}
+
+	defer db.Close()
+
+	if dbLoginData != nil {
+		return nil, errorz.UserExists
 	} else {
-		add_user(username, password, 1)
-		return loginFunction
+		db, err := dbConnect()
+
+		if err != nil {
+			return nil, err
+		}
+
+		defer db.Close()
+
+		_, err = db.Exec("INSERT INTO users (login, password, role) VALUES ($1, $2, 1)", message["login"], message["password"])
+		if err != nil {
+			logger.Error("ошибка при регистрации нового пользователя: ", zap.Error(err))
+			return nil, err
+		}
+
+		return jwt.Keygen(message)
 	}
 }
-*/
