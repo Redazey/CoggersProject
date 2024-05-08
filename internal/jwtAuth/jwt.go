@@ -1,4 +1,4 @@
-package jwt
+package jwtAuth
 
 import (
 	"os"

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"goRoadMap/internal/db"
-	"goRoadMap/internal/jwt"
+	"goRoadMap/internal/jwtAuth"
 	"goRoadMap/internal/logger"
 
 	"github.com/rs/cors"
@@ -46,8 +46,8 @@ func main() {
 	logger.Init("info")
 
 	mux := http.NewServeMux()
-	keygen := handler(jwt.Keygen)
-	tokenAuth := handler(jwt.TokenAuth)
+	keygen := handler(jwtAuth.Keygen)
+	tokenAuth := handler(jwtAuth.TokenAuth)
 
 	mux.HandleFunc("/keygen", keygen)
 	mux.HandleFunc("/tokenAuth", tokenAuth)
