@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"goRoadMap/internal/db"
+	"goRoadMap/internal/jwtAuth"
 	"goRoadMap/internal/logger"
 
 	"github.com/rs/cors"
@@ -46,8 +47,10 @@ func main() {
 
 	// заворачиваем функции в функцию-декоратор handler
 	mux := http.NewServeMux()
-	keygen := handler(jwt.Keygen)
-	tokenAuth := handler(jwt.TokenAuth)
+	keygen := handler(jwtAuth.Keygen)
+	tokenAuth := handler(jwtAuth.TokenAuth)
+	getLoginData := handler(db.GetLoginData)
+	newUserRegistration := handler(db.NewUserRegistration)
 
 	mux.HandleFunc("/keygen", keygen)
 	mux.HandleFunc("/tokenAuth", tokenAuth)

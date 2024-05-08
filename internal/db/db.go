@@ -2,7 +2,7 @@ package db
 
 import (
 	"goRoadMap/internal/errorz"
-	"goRoadMap/internal/jwt"
+	"goRoadMap/internal/jwtAuth"
 	"goRoadMap/internal/logger"
 
 	"github.com/jmoiron/sqlx"
@@ -181,6 +181,6 @@ func NewUserRegistration(message map[string]string) (map[string]string, error) {
 			return nil, err
 		}
 
-		return jwt.Keygen(message)
+		return jwtAuth.Keygen(message)
 	}
 }

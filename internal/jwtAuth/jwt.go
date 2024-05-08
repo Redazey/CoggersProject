@@ -16,7 +16,7 @@ import (
 func Keygen(data map[string]string) (map[string]string, error) {
 	err := godotenv.Load("Z:/files/goRoadMap/goRoadMap/.env")
 	if err != nil {
-		logger.Fatal("Error loading .env file: ", zap.Error(err))
+		logger.Error("Error loading .env file: ", zap.Error(err))
 		return nil, err
 	}
 
@@ -37,7 +37,7 @@ func Keygen(data map[string]string) (map[string]string, error) {
 	tokenString, err := token.SignedString(secretKey)
 
 	if err != nil {
-		logger.Fatal("ошибка при подписи токена: ", zap.Error(err))
+		logger.Error("ошибка при подписи токена: ", zap.Error(err))
 		return nil, err
 	} else {
 		returnDataMap["message"] = tokenString
@@ -47,7 +47,7 @@ func Keygen(data map[string]string) (map[string]string, error) {
 }
 
 func TokenAuth(data map[string]string) (map[string]string, error) {
-	returnDataMap := make(map[string]string)
+
 	tokenString := data["token"]
 	secretKey := []byte(os.Getenv("JWT_KEY"))
 
@@ -56,12 +56,11 @@ func TokenAuth(data map[string]string) (map[string]string, error) {
 	})
 
 	if err != nil {
-		logger.Fatal("ошибка при чтении токена: ", zap.Error(err))
+		logger.Error("ошибка при чтении токена: ", zap.Error(err))
 		return nil, err
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
-
 	if ok && token.Valid {
 
 		expirationTime := time.Unix(int64(claims["exp"].(float64)), 0)
@@ -69,10 +68,11 @@ func TokenAuth(data map[string]string) (map[string]string, error) {
 		if time.Now().After(expirationTime) {
 			return nil, errorz.TokenExpired
 		}
+
 	} else {
-		logger.Fatal("невалидный токен: ", zap.Error(jwt.ValidationError{}))
-		return nil, jwt.ValidationError{}
+		logger.Error("невалидный токен: ", zap.Error(errorz.ValidationError))
+		return nil, errorz.ValidationError
 	}
 
-	return returnDataMap, nil
+	return data, nil
 }
