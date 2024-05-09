@@ -9,13 +9,12 @@ import (
 
 	"github.com/golang-jwt/jwt"
 	"github.com/joho/godotenv"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestKeygen(t *testing.T) {
 	err := godotenv.Load("Z:/files/goRoadMap/goRoadMap/.env")
-	if err != nil {
-		t.Errorf("Error loading .env file:  %v", err)
-	}
+	assert.Nil(t, err, "Ошибка при открытии env файла: %v", err)
 
 	secret := os.Getenv("JWT_KEY")
 	data := map[string]string{
@@ -24,42 +23,29 @@ func TestKeygen(t *testing.T) {
 
 	// Вызов тестируемой функции
 	tokenMap, err := jwtAuth.Keygen(data)
-
-	// Проверка на ошибку
-	if err != nil {
-		t.Errorf("Не ожидали ошибку, получили: %v", err)
-	}
+	assert.Nil(t, err, "Не ожидали ошибку, получили: %v", err)
 
 	// Проверка наличия сообщения возвращаемого токена
-	if _, ok := tokenMap["message"]; !ok {
-		t.Error("Ожидали наличие сообщения в токене")
-	}
+	assert.NotNil(t, tokenMap["message"], "Ожидали наличие сообщения в токене")
 
 	// Проверка на генерацию корректного JWT-токена
 	tokenString := tokenMap["message"]
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secret), nil
 	})
-	if err != nil {
-		t.Errorf("Неверный секретный ключ: %v", err)
-	}
+	assert.Nil(t, err, "Неверный секретный ключ: %v", err)
 
-	if _, ok := token.Claims.(jwt.MapClaims)["username"]; !ok {
-		t.Error("Ошибка в данных токена: отсутствует информация о пользователе")
-	}
+	assert.NotNil(t, token.Claims.(jwt.MapClaims)["username"],
+		"Ошибка в данных токена: отсутствует информация о пользователе")
 
 	exp := token.Claims.(jwt.MapClaims)["exp"].(float64)
 	expTime := time.Unix(int64(exp), 0)
-	if expTime.Before(time.Now()) {
-		t.Error("Срок действия токена истек")
-	}
+	assert.False(t, expTime.Before(time.Now()), "Срок действия токена истек")
 }
 
 func TestTokenAuth(t *testing.T) {
 	err := godotenv.Load("Z:/files/goRoadMap/goRoadMap/.env")
-	if err != nil {
-		t.Errorf("Error loading .env file:  %v", err)
-	}
+	assert.Nil(t, err, "Ошибка при открытии env файла: %v", err)
 
 	secret := os.Getenv("JWT_KEY")
 
@@ -77,11 +63,7 @@ func TestTokenAuth(t *testing.T) {
 
 	// Вызываем тестируемую функцию
 	_, err = jwtAuth.TokenAuth(data)
-
-	// Проверяем наличие ошибок
-	if err != nil {
-		t.Errorf("Не ожидали ошибку, получили: %v", err)
-	}
+	assert.Nil(t, err, "Не ожидали ошибку, получили: %v", err)
 
 	// В данном тесте не проверяем содержимое returnDataMap, так как функция TokenAuth не модифицирует его
 
@@ -90,9 +72,7 @@ func TestTokenAuth(t *testing.T) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secret), nil
 	})
-	if err != nil {
-		t.Errorf("Неверный секретный ключ: %v", err)
-	}
+	assert.Nil(t, err, "Неверный секретный ключ: %v", err)
 
 	_ = token.Claims.Valid()
 
@@ -105,8 +85,6 @@ func TestTokenAuth(t *testing.T) {
 	}
 
 	_, errExpired := jwtAuth.TokenAuth(dataExpired)
-	if errExpired != errorz.TokenExpired {
-		t.Errorf("Ожидали ошибку TokenExpired, получили другую ошибку: %v", errExpired)
-	}
-
+	assert.EqualError(t, errExpired, errorz.TokenExpired.Error(),
+		"Ожидали ошибку TokenExpired, получили другую ошибку: %v", errExpired)
 }

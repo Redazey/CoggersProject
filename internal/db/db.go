@@ -75,7 +75,7 @@ func InitiateTables() error {
 	for _, query := range SQLqueries {
 		_, err = db.Exec(query)
 		if err != nil {
-			logger.Fatal("ошибка при выполнении SQL зарпоса: ", zap.Error(err))
+			logger.Error("ошибка при выполнении SQL зарпоса: ", zap.Error(err))
 			return err
 		}
 	}
