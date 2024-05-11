@@ -16,8 +16,8 @@ import (
 )
 
 type Config struct {
-	envPath    string `json:"envPath"`
-	loggerMode string `json:"loggerMode"`
+	EnvPath    string `json:"envPath"`
+	LoggerMode string `json:"loggerMode"`
 }
 
 func handler(f func(data map[string]string) (map[string]string, error)) func(w http.ResponseWriter, r *http.Request) {
@@ -65,14 +65,14 @@ func main() {
 		return
 	}
 
-	err = godotenv.Load(config.envPath)
+	err = godotenv.Load(config.EnvPath)
 
 	if err != nil {
 		log.Fatal("Ошибка при открытии env файла: ", err)
 		return
 	}
 
-	logger.Init(config.loggerMode)
+	logger.Init(config.LoggerMode)
 
 	// заворачиваем функции в функцию-декоратор handler
 	mux := http.NewServeMux()
