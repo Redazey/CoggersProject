@@ -6,7 +6,6 @@ import (
 	"goRoadMap/internal/logger"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 
@@ -15,18 +14,12 @@ import (
 )
 
 func dbConnect() (*sqlx.DB, error) {
-	err := godotenv.Load("Z:/files/goRoadMap/goRoadMap/.env")
 	var (
 		user     = os.Getenv("DB_USER")
 		password = os.Getenv("DB_PASSWORD")
 		host     = os.Getenv("DB_HOST")
 		db_name  = os.Getenv("DB_NAME")
 	)
-
-	if err != nil {
-		logger.Fatal("Error loading .env file: ", zap.Error(err))
-		return nil, err
-	}
 
 	psqlInfo := fmt.Sprintf("user=%s dbname=%s password=%s host=%s sslmode=disable",
 		user, db_name, password, host)

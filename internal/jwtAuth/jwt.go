@@ -4,8 +4,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
-
 	"goRoadMap/internal/errorz"
 	"goRoadMap/internal/logger"
 
@@ -14,11 +12,6 @@ import (
 )
 
 func Keygen(data map[string]string) (map[string]string, error) {
-	err := godotenv.Load("Z:/files/goRoadMap/goRoadMap/.env")
-	if err != nil {
-		logger.Error("Error loading .env file: ", zap.Error(err))
-		return nil, err
-	}
 
 	returnDataMap := make(map[string]string)
 	username := data["username"]

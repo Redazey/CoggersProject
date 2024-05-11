@@ -13,7 +13,7 @@ import (
 )
 
 func TestKeygen(t *testing.T) {
-	err := godotenv.Load("Z:/files/goRoadMap/goRoadMap/.env")
+	err := godotenv.Load("Z:/files/goRoadMap/.env")
 	assert.Nil(t, err, "Ошибка при открытии env файла: %v", err)
 
 	secret := os.Getenv("JWT_KEY")
@@ -44,7 +44,7 @@ func TestKeygen(t *testing.T) {
 }
 
 func TestTokenAuth(t *testing.T) {
-	err := godotenv.Load("Z:/files/goRoadMap/goRoadMap/.env")
+	err := godotenv.Load("Z:/files/goRoadMap/.env")
 	assert.Nil(t, err, "Ошибка при открытии env файла: %v", err)
 
 	secret := os.Getenv("JWT_KEY")
