@@ -9,13 +9,12 @@ import (
 	"go.uber.org/zap"
 )
 
-// ф-ция с кэшированием
 // передаем в эту функцию username и password
 func GetLoginData(message map[string]string) (map[string]string, error) {
 	username := message["username"]
 	password := message["password"]
 
-	cachePwd, err := cache.IsDataInCache(username, "password")
+	cachePwd, err := cache.IsDataInCache("users", username, "password")
 	if err != nil {
 		logger.Error("ошибка при поиске данных в кэше Redis: ", zap.Error(err))
 		return nil, err
@@ -30,18 +29,24 @@ func GetLoginData(message map[string]string) (map[string]string, error) {
 	return nil, errorz.ErrUserNotFound
 }
 
-// ф-ция с кэшированием
 // передаем в эту функцию username и password
 func NewUserRegistration(message map[string]string) (map[string]string, error) {
-	dbLoginData, err := GetLoginData(message)
+	cacheData, err := cache.ReadCache("users", message["username"])
 	if err != nil {
 		return nil, err
 	}
-	if dbLoginData != nil {
+	if cacheData != nil {
 		return nil, errorz.ErrUserExists
 	}
 
-	err = cache.SaveCache(message)
+	formatedMessage := map[string]map[string]string{
+		message["username"]: {
+			"password": message["password"],
+			"roleid":   "1",
+		},
+	}
+
+	err = cache.SaveCache(formatedMessage, "users")
 	if err != nil {
 		logger.Error("ошибка при регистрации нового пользователя: ", zap.Error(err))
 		return nil, err

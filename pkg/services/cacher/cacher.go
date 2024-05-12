@@ -15,7 +15,7 @@ func cacheUpdate() {
 	if err != nil {
 		logger.Error("ошибка при попытке получить данные из БД: ", zap.Error(err))
 	}
-	cache.SaveCache(dataMap)
+	cache.SaveCache(dataMap, "users")
 }
 
 func Init(interval string) {

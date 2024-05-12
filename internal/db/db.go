@@ -1,7 +1,6 @@
 package db
 
 import (
-	"database/sql"
 	"goRoadMap/pkg/services/logger"
 
 	"github.com/jmoiron/sqlx"
@@ -11,25 +10,6 @@ import (
 	"fmt"
 	"os"
 )
-
-func rowsToMap(rows *sql.Rows) (map[string]string, error) {
-	var (
-		key     string
-		value   string
-		dataMap = make(map[string]string)
-	)
-
-	for rows.Next() {
-		err := rows.Scan(&key, &value)
-		if err != nil {
-			logger.Error("Ошибка при сканировании sql.Rows: ", zap.Error(err))
-			return nil, err
-		}
-		dataMap[key] = value
-	}
-
-	return dataMap, nil
-}
 
 func dbConnect() (*sqlx.DB, error) {
 	var (
@@ -123,7 +103,7 @@ func InitiateTables() error {
 }
 
 // принимает таблицу как string и возвращает таблицу в виде map
-func GetData(table string) (map[string]string, error) {
+func GetData(table string) (map[string]map[string]string, error) {
 	// подключение к бд
 	db, err := dbConnect()
 	if err != nil {
@@ -137,10 +117,24 @@ func GetData(table string) (map[string]string, error) {
 		return nil, err
 	}
 
-	returnDataMap, err := rowsToMap(rows)
-	if err != nil {
-		return nil, err
+	// Инициализация map для хранения данных
+	usersMap := make(map[string]map[string]string)
+
+	// Чтение данных из таблицы и добавление их в map
+	for rows.Next() {
+		var name, password, roleId string
+		err := rows.Scan(&name, &password, &roleId)
+		if err != nil {
+			logger.Error("Ошибка при сканировании sql.Rows: ", zap.Error(err))
+			return nil, err
+		}
+
+		userData := map[string]string{
+			"password": password,
+			"role":     roleId,
+		}
+		usersMap[name] = userData
 	}
 
-	return returnDataMap, nil
+	return usersMap, nil
 }

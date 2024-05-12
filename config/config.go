@@ -19,16 +19,17 @@ type Config struct {
 
 var config Config
 
+// не забудьте указать свой путь к файлу config.json
 func Init() {
-	configFile, err := os.ReadFile("config.json")
+	configFile, err := os.ReadFile("Z:/files/goRoadMap/config/config.json")
 	if err != nil {
-		log.Fatal("Ошибка при попытке прочитать файл конфигурации:", err)
+		log.Fatal("Ошибка при попытке прочитать файл конфигурации: ", err)
 		return
 	}
 
 	err = json.Unmarshal(configFile, &config)
 	if err != nil {
-		log.Fatal("Ошибка при распаковывании файла конфигурации:", err)
+		log.Fatal("Ошибка при распаковывании файла конфигурации: ", err)
 		return
 	}
 }
