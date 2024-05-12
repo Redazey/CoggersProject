@@ -1,9 +1,8 @@
 package db
 
 import (
-	"goRoadMap/internal/errorz"
-	"goRoadMap/internal/jwtAuth"
-	"goRoadMap/internal/logger"
+	"database/sql"
+	"goRoadMap/pkg/services/logger"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -12,6 +11,25 @@ import (
 	"fmt"
 	"os"
 )
+
+func rowsToMap(rows *sql.Rows) (map[string]string, error) {
+	var (
+		key     string
+		value   string
+		dataMap = make(map[string]string)
+	)
+
+	for rows.Next() {
+		err := rows.Scan(&key, &value)
+		if err != nil {
+			logger.Error("Ошибка при сканировании sql.Rows: ", zap.Error(err))
+			return nil, err
+		}
+		dataMap[key] = value
+	}
+
+	return dataMap, nil
+}
 
 func dbConnect() (*sqlx.DB, error) {
 	var (
@@ -26,14 +44,14 @@ func dbConnect() (*sqlx.DB, error) {
 
 	db, err := sqlx.Connect("postgres", psqlInfo)
 	if err != nil {
-		logger.Fatal("ошибка при подключении к БД", zap.Error(err))
+		logger.Error("ошибка при подключении к БД", zap.Error(err))
 		return nil, err
 	}
 
 	// Проверка соединения
 	err = db.Ping()
 	if err != nil {
-		logger.Fatal("соединение с БД не прошло проверку: ", zap.Error(err))
+		logger.Error("соединение с БД не прошло проверку: ", zap.Error(err))
 		return nil, err
 	}
 
@@ -104,52 +122,9 @@ func InitiateTables() error {
 	return nil
 }
 
-// передаем в эту функцию username и password
-func GetLoginData(message map[string]string) (map[string]string, error) {
-	db, err := dbConnect()
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer db.Close()
-
-	username := message["username"]
-	password := message["password"]
-	rows, err := db.Query(
-		`SELECT login, password FROM users
-        WHERE login = ? AND password = ?`, username, password)
-	if err != nil {
-		logger.Error("ошибка при исполнении SQL запроса: ", zap.Error(err))
-		return nil, err
-	}
-
-	dbLoginData := make(map[string]string)
-
-	for rows.Next() {
-		var key string
-		var value string
-
-		err = rows.Scan(&key, &value)
-		if err != nil {
-			logger.Error("ошибка при получении значение количества строк из запроса: ", zap.Error(err))
-			return nil, err
-		}
-
-		dbLoginData[key] = value
-	}
-
-	return dbLoginData, nil
-}
-
-// передаем в эту функцию username и password
-func NewUserRegistration(message map[string]string) (map[string]string, error) {
-
-	dbLoginData, err := GetLoginData(message)
-	if err != nil {
-		return nil, err
-	}
-
+// принимает таблицу как string и возвращает таблицу в виде map
+func GetData(table string) (map[string]string, error) {
+	// подключение к бд
 	db, err := dbConnect()
 	if err != nil {
 		return nil, err
@@ -157,23 +132,15 @@ func NewUserRegistration(message map[string]string) (map[string]string, error) {
 
 	defer db.Close()
 
-	if dbLoginData != nil {
-		return nil, errorz.UserExists
-	} else {
-		db, err := dbConnect()
-
-		if err != nil {
-			return nil, err
-		}
-
-		defer db.Close()
-
-		_, err = db.Exec("INSERT INTO users (login, password, role) VALUES ($1, $2, 1)", message["login"], message["password"])
-		if err != nil {
-			logger.Error("ошибка при регистрации нового пользователя: ", zap.Error(err))
-			return nil, err
-		}
-
-		return jwtAuth.Keygen(message)
+	rows, err := db.Query(`SELECT * FROM $1`, table)
+	if err != nil {
+		return nil, err
 	}
+
+	returnDataMap, err := rowsToMap(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return returnDataMap, nil
 }

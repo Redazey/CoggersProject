@@ -2,7 +2,7 @@ package db_test
 
 import (
 	"goRoadMap/internal/db"
-	"goRoadMap/internal/logger"
+	"goRoadMap/pkg/services/logger"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

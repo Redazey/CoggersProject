@@ -5,8 +5,9 @@ import (
 )
 
 var (
-	TokenExpired    = errors.New("tokenExpiredError")
-	UserExists      = errors.New("userAlreadyRegisteredError")
-	ValidationError = errors.New("validationError")
-	NilCacheData    = errors.New("NilCacheData")
+	ErrTokenExpired = errors.New("tokenExpiredError")
+	ErrUserExists   = errors.New("userAlreadyRegisteredError")
+	ErrValidation   = errors.New("validationError")
+	ErrNilCacheData = errors.New("nilCacheData")
+	ErrUserNotFound = errors.New("userNotFound")
 )

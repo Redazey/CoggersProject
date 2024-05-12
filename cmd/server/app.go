@@ -1,74 +1,32 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
-	"os"
 
+	"goRoadMap/config"
 	"goRoadMap/internal/db"
 	"goRoadMap/internal/jwtAuth"
-	"goRoadMap/internal/logger"
+	"goRoadMap/pkg/handler"
+	"goRoadMap/pkg/services/cacher"
+	"goRoadMap/pkg/services/logger"
 
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 	"go.uber.org/zap"
 )
 
-type Config struct {
-	EnvPath    string `json:"envPath"`
-	LoggerMode string `json:"loggerMode"`
-}
-
-func handler(f func(data map[string]string) (map[string]string, error)) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "POST" {
-			// Чтение данных из POST запроса
-			var message map[string]string
-			err := json.NewDecoder(r.Body).Decode(&message)
-
-			if err != nil {
-				logger.Error("ошибка при декодировании json файла: ", zap.Error(err))
-				http.Error(w, err.Error(), http.StatusBadRequest)
-			}
-
-			returnDataMap, err := f(message)
-
-			if err != nil {
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-				logger.Error("ошибка при выполнении функции: ", zap.Error(err))
-				return
-			}
-
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-
-			json.NewEncoder(w).Encode(returnDataMap)
-		} else {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		}
-	}
-}
-
 func main() {
-	// инициализируем логгер, подгружаем файл конфига и .env
-	configFile, err := os.ReadFile("config.json")
-	if err != nil {
-		log.Fatal("Ошибка при чтении json-файла:", err)
-		return
-	}
+	// инициализируем конфиг, кэш, .env и логгер
+	config.Init()
+	config := config.GetConfig()
 
-	var config Config
-	err = json.Unmarshal(configFile, &config)
-	if err != nil {
-		log.Fatal("Ошибка при распаковывании json-файла:", err)
-		return
-	}
+	cacher.Init(config.Cache.UpdateInterval)
 
-	err = godotenv.Load(config.EnvPath)
+	err := godotenv.Load(config.EnvPath)
 
 	if err != nil {
-		log.Fatal("Ошибка при открытии env файла: ", err)
+		log.Fatal("Ошибка при открытии .env файла: ", err)
 		return
 	}
 
@@ -76,10 +34,10 @@ func main() {
 
 	// заворачиваем функции в функцию-декоратор handler
 	mux := http.NewServeMux()
-	keygen := handler(jwtAuth.Keygen)
-	tokenAuth := handler(jwtAuth.TokenAuth)
-	getLoginData := handler(db.GetLoginData)
-	newUserRegistration := handler(db.NewUserRegistration)
+	keygen := handler.Handler(jwtAuth.Keygen)
+	tokenAuth := handler.Handler(jwtAuth.TokenAuth)
+	getLoginData := handler.Handler(db.GetLoginData)
+	newUserRegistration := handler.Handler(db.NewUserRegistration)
 
 	mux.HandleFunc("/keygen", keygen)
 	mux.HandleFunc("/tokenAuth", tokenAuth)

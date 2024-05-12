@@ -85,6 +85,6 @@ func TestTokenAuth(t *testing.T) {
 	}
 
 	_, errExpired := jwtAuth.TokenAuth(dataExpired)
-	assert.EqualError(t, errExpired, errorz.TokenExpired.Error(),
+	assert.EqualError(t, errExpired, errorz.ErrTokenExpired.Error(),
 		"Ожидали ошибку TokenExpired, получили другую ошибку: %v", errExpired)
 }

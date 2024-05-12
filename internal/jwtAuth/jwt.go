@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"goRoadMap/internal/errorz"
-	"goRoadMap/internal/logger"
+	"goRoadMap/pkg/services/logger"
 
 	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"
@@ -59,12 +59,12 @@ func TokenAuth(data map[string]string) (map[string]string, error) {
 		expirationTime := time.Unix(int64(claims["exp"].(float64)), 0)
 
 		if time.Now().After(expirationTime) {
-			return nil, errorz.TokenExpired
+			return nil, errorz.ErrTokenExpired
 		}
 
 	} else {
-		logger.Error("невалидный токен: ", zap.Error(errorz.ValidationError))
-		return nil, errorz.ValidationError
+		logger.Error("невалидный токен: ", zap.Error(errorz.ErrValidation))
+		return nil, errorz.ErrValidation
 	}
 
 	return data, nil
