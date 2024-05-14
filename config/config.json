@@ -1,5 +1,5 @@
 {
-    "envPath": "Z:/files/goRoadMap/.env",
+    "envPath": "C:/goRoadMap/.env",
     "loggerMode": "info",
     "cache": {
         "EXTime": 16,

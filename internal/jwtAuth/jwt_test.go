@@ -4,6 +4,7 @@ import (
 	"goRoadMap/config"
 	"goRoadMap/internal/errorz"
 	"goRoadMap/internal/jwtAuth"
+	"goRoadMap/pkg/services/logger"
 
 	"os"
 	"testing"
@@ -15,6 +16,7 @@ import (
 )
 
 func TestKeygen(t *testing.T) {
+	logger.Init("info")
 	config.Init()
 	config := config.GetConfig()
 

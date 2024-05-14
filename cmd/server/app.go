@@ -17,11 +17,9 @@ import (
 )
 
 func main() {
-	// инициализируем конфиг, кэш, .env и логгер
+	// инициализируем конфиг, .env, логгер и кэш
 	config.Init()
 	config := config.GetConfig()
-
-	cacher.Init(config.Cache.UpdateInterval)
 
 	err := godotenv.Load(config.EnvPath)
 
@@ -31,13 +29,14 @@ func main() {
 	}
 
 	logger.Init(config.LoggerMode)
+	cacher.Init(config.Cache.UpdateInterval)
 
 	// заворачиваем функции в функцию-декоратор handler
 	mux := http.NewServeMux()
 	keygen := handler.Handler(jwtAuth.Keygen)
 	tokenAuth := handler.Handler(jwtAuth.TokenAuth)
-	getLoginData := handler.Handler(db.GetLoginData)
-	newUserRegistration := handler.Handler(db.NewUserRegistration)
+	getLoginData := handler.Handler(jwtAuth.GetLoginData)
+	newUserRegistration := handler.Handler(jwtAuth.NewUserRegistration)
 
 	mux.HandleFunc("/keygen", keygen)
 	mux.HandleFunc("/tokenAuth", tokenAuth)

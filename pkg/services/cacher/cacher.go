@@ -11,11 +11,42 @@ import (
 )
 
 func cacheUpdate() {
-	dataMap, err := db.GetData("users")
-	if err != nil {
-		logger.Error("ошибка при попытке получить данные из БД: ", zap.Error(err))
+	// здесь настраиваем названия таблиц, которые будут сохранятся в кэше
+	cacheTables := []string{"users"}
+
+	// сначала загружаем весь кэш в БД
+	for table := range cacheTables {
+		// для этого получаем весь кэш
+		cacheMap, err := cache.ReadCache(cacheTables[table])
+		if err != nil {
+			return
+		}
+		// затем загружаем в БД
+		db.PullData(cacheTables[table], cacheMap)
 	}
-	cache.SaveCache(dataMap, "users")
+	/*
+	   в случае, если мы будем выгружать всю таблицу в кэш, что очень сомнительно
+	   	// теперь обновляем кэш
+	   	for table := range cacheTables {
+	   		dataMap, err := db.GetData(cacheTables[table])
+	   		if err != nil {
+	   			logger.Error("ошибка при обновлении кэша ", zap.Error(err))
+	   			return
+	   		}
+
+	   		err = cache.SaveCache(cacheTables[table], cache.ConvertMap(dataMap))
+	   		if err != nil {
+	   			logger.Error("ошибка при обновлении кэша ", zap.Error(err))
+	   			return
+	   		}
+
+	   		err = cache.DeleteEX(cacheTables[table])
+	   		if err != nil {
+	   			logger.Error("ошибка при обновлении кэша ", zap.Error(err))
+	   			return
+	   		}
+	   	}
+	*/
 }
 
 func Init(interval string) {
