@@ -16,9 +16,10 @@ import (
 )
 
 func TestKeygen(t *testing.T) {
-	logger.Init("info")
 	config.Init()
 	config := config.GetConfig()
+	logger.Init(config.LoggerMode)
+	godotenv.Load(config.EnvPath)
 
 	err := godotenv.Load(config.EnvPath)
 	assert.Nil(t, err, "Ошибка при открытии env файла: %v", err)
@@ -53,9 +54,6 @@ func TestKeygen(t *testing.T) {
 }
 
 func TestTokenAuth(t *testing.T) {
-	err := godotenv.Load("Z:/files/goRoadMap/.env")
-	assert.Nil(t, err, "Ошибка при открытии env файла: %v", err)
-
 	secret := os.Getenv("JWT_KEY")
 
 	t.Run("TokenAuthentication", func(t *testing.T) {

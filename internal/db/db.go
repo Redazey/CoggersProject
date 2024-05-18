@@ -2,6 +2,7 @@ package db
 
 import (
 	"goRoadMap/pkg/services/logger"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -48,11 +49,10 @@ func InitiateTables() error {
         )`,
 		`CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
-            login TEXT,
+            username TEXT,
             password TEXT,
-            token TEXT,
-            role INT,
-            FOREIGN KEY (role) REFERENCES roles(id)
+            roleid INT,
+            FOREIGN KEY (roleid) REFERENCES roles(id)
         )`,
 	}
 	// подключение к бд
@@ -79,7 +79,7 @@ func InitiateTables() error {
 
 	roles := []string{"user", "employee", "admin"}
 
-	rowsCount, err := db.Query(`SELECT COUNT(*) FROM roles`)
+	rowsCount, err := db.Query("SELECT COUNT(*) FROM roles")
 	if err != nil {
 		logger.Error("ошибка при исполнении SQL запроса: ", zap.Error(err))
 		return err
@@ -87,8 +87,16 @@ func InitiateTables() error {
 
 	defer rowsCount.Close()
 
+	var count int
+	if rowsCount.Next() {
+		err := rowsCount.Scan(&count)
+		if err != nil {
+			logger.Error("ошибка при сканировании результата запроса: ", zap.Error(err))
+			return err
+		}
+	}
 	// Проверка, заполнена ли таблица roles
-	if rowsCount == nil {
+	if count == 0 {
 		// Вставляем каждую роль в базу данных
 		for _, role := range roles {
 			_, err = stmt.Exec(role)
@@ -105,7 +113,7 @@ func InitiateTables() error {
 }
 
 // принимает таблицу как string и возвращает таблицу в виде map
-func GetData(table string) (map[string]string, error) {
+func FetchUserData(username string) (map[string]string, error) {
 	// подключение к бд
 	db, err := dbConnect()
 	if err != nil {
@@ -114,7 +122,9 @@ func GetData(table string) (map[string]string, error) {
 
 	defer db.Close()
 
-	rows, err := db.Query("SELECT * FROM $1", table)
+	rows, err := db.Query(`SELECT username, password, roleid 
+						   FROM users
+						   WHERE username = $1`, username)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +143,7 @@ func GetData(table string) (map[string]string, error) {
 		values[i] = new(interface{})
 	}
 
-	// Инициализация мапа для хранения данных
+	// Инициализация мапы для хранения данных
 	dataMap := make(map[string]string)
 
 	// Чтение данных из таблицы и добавление их в map
@@ -163,55 +173,32 @@ func PullData(table string, data map[string]map[string]interface{}) error {
 		return err
 	}
 
-	// Подготовка SQL-запроса на получение всех названий полей из таблицы
-	rows, err := db.Query(`SELECT column_name 
-						   FROM information_schema.columns 
-						   WHERE table_name = $1
-						   AND column_name NOT LIKE 'id\_%'`, table)
-	if err != nil {
-		logger.Error("Ошибка при выполнении SQL-запроса: ", zap.Error(err))
-		return err
-	}
-	defer rows.Close()
+	for _, keyData := range data {
+		var (
+			columns []string
+			values  []string
+		)
 
-	stmt, err := db.Prepare(`UPDATE $1 SET $2 = $3`)
-	if err != nil {
-		logger.Error("ошибка при подготовке SQL зарпоса: ", zap.Error(err))
-		return err
-	}
-	defer stmt.Close()
-	// columnNames - имена полей нашей таблицы типа
-	// {"username", "password", "roleid"}
-	var columnNames []string
-	for rows.Next() {
-		var columnName string
-		err := rows.Scan(&columnName)
+		for key, value := range keyData {
+			columns = append(columns, key)
+			values = append(values, fmt.Sprintf("%s", value))
+		}
+		cmdStr := fmt.Sprintf(`INSERT INTO %s (%s) VALUES (?)`, table, strings.Join(columns, ", "))
+		query, args, err := sqlx.In(cmdStr, values)
+
 		if err != nil {
-			logger.Error("Ошибка при сканировании результата запроса: ", zap.Error(err))
+			logger.Error("Ошибка при выполнении SQL-запроса: ", zap.Error(err))
 			return err
 		}
-		columnNames = append(columnNames, columnName)
-	}
 
-	for mainKey, keyData := range data {
-		// values - преобразование нашей мапы в список значений типа
-		// {"name", "pass", "1"}
-		var values []interface{}
-
-		values = append(values, mainKey)
-		for _, value := range keyData {
-			values = append(values, value)
-		}
-
-		for i := range columnNames {
-			// наконец обьединяем наши поля и значения в SQL запросе
-			_, err := stmt.Exec(table, columnNames[i], values[i])
-			if err != nil {
-				logger.Error("Ошибка при выполнении SQL-запроса: ", zap.Error(err))
-				return err
-			}
+		query = db.Rebind(query)
+		_, err = db.Query(query, args...)
+		if err != nil {
+			logger.Error("Ошибка при выполнении SQL-запроса: ", zap.Error(err))
+			return err
 		}
 	}
+
 	logger.Info("Данные в БД были успешно обновлены")
 	return nil
 }

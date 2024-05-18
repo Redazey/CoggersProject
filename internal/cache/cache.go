@@ -2,10 +2,13 @@ package cache
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"goRoadMap/config"
 	"goRoadMap/internal/errorz"
 	"goRoadMap/pkg/services/logger"
+	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -16,6 +19,7 @@ var ctx = context.Background()
 
 /*
 функция для подготовки мапы к записи в кэш
+columns - поля, по которым будет сгенерирован md5hash
 
 формат входящей мапы:
 
@@ -28,26 +32,28 @@ var ctx = context.Background()
 формат выходящей мапы:
 
 	map[string]map[string]interface{} = {
-		"value1": {
+		"md5hash": {
+			"key1": "value1",
 			"key2": "value2",
 			"key3": "value3",
 		},
 	}
+	+ md5hash key
 */
-func ConvertMap(inputMap map[string]string) map[string]map[string]interface{} {
+func ConvertMap(inputMap map[string]string, columns ...string) (map[string]map[string]interface{}, string) {
+	var mainKey string
+
+	hash := md5.Sum([]byte(strings.Join(columns, "")))
+	mainKey = hex.EncodeToString(hash[:])
+
 	outputMap := make(map[string]map[string]interface{})
-	var mainKey = ""
+	outputMap[mainKey] = make(map[string]interface{})
 
 	for key, value := range inputMap {
-		if mainKey == "" {
-			mainKey = value
-			outputMap[value] = make(map[string]interface{})
-			continue
-		}
 		outputMap[mainKey][key] = value
 	}
 
-	return outputMap
+	return outputMap, mainKey
 }
 
 func redisConnect() *redis.Client {
@@ -64,7 +70,11 @@ func redisConnect() *redis.Client {
 	return conn
 }
 
-// запрашиваем поиск по ключу input, и что должно вернуться по ключу output
+/*
+поиск данных в кэше по md5 хэш-ключу
+
+запрашиваем поиск по ключу input, и что должно вернуться по ключу output
+*/
 func IsDataInCache(table string, input string, output string) (interface{}, error) {
 	cacheMap, err := ReadCache(table)
 	if cacheMap[input] != nil && err == nil {
@@ -77,13 +87,16 @@ func IsDataInCache(table string, input string, output string) (interface{}, erro
 }
 
 /*
-функция принимает map вида, для преобразования используйте функцию ConvertMap
+функция для записи данных в кэш, принимает мапы, после конвертации функцией ConvertMap
+
+Вид входящей мапы:
 
 	map[string]map[string]interface{}{
-		"username": {
-			"password": "exampass",
-			"roleid":   "1",
-		}
+		"md5hash": {
+			"username": "exampleUser",
+			"password": "examplePass",
+			"roleid":   "exampleRoleid",
+		},
 	}
 */
 func SaveCache(table string, cacheMap map[string]map[string]interface{}) error {
@@ -130,12 +143,13 @@ func SaveCache(table string, cacheMap map[string]map[string]interface{}) error {
 }
 
 /*
-target - ключ, по которому ищем
+Функция для чтения значений по хэш-ключу
 
-функция возвращает map вида:
+возвращает map вида:
 
 	map[string]map[string]interface{} = {
-		"exampleUser": {
+		"md5hash": {
+			"username": "exampleUser",
 			"password": "examplePass",
 			"roleid":   "exampleRoleid",
 		},
@@ -168,6 +182,11 @@ func ReadCache(table string) (map[string]map[string]interface{}, error) {
 	return cacheMap, nil
 }
 
+/*
+Функция, которая удаляет все протухшие ключ-значения из выбранной таблицы
+
+автоматически применяется при сохранении кэша при помощи функции SaveCache
+*/
 func DeleteEX(table string) error {
 	conn := redisConnect()
 	defer conn.Close()
@@ -195,4 +214,23 @@ func DeleteEX(table string) error {
 
 	logger.Info("Протухшие ключи удалены из кэша")
 	return nil
+}
+
+/*
+функция для стирания кэша
+
+нужна в основном для дэбага
+*/
+func ClearCache() {
+	conn := redisConnect()
+	defer conn.Close()
+
+	// Удаление всего кэша из Redis
+	err := conn.FlushAll(ctx).Err()
+	if err != nil {
+		logger.Error("Ошибка при удалении кэша из Redis:", zap.Error(err))
+		return
+	}
+
+	logger.Info("Протухшие ключи удалены из кэша")
 }
