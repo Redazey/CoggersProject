@@ -1,4 +1,4 @@
-logs/golog
+backend/logs/golog
 
 # dependencies
 web/node_modules

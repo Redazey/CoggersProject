@@ -2,9 +2,9 @@ package cacher
 
 import (
 	"fmt"
-	"goRoadMap/internal/cache"
-	"goRoadMap/internal/db"
-	"goRoadMap/pkg/services/logger"
+	"goRoadMap/backend/internal/cache"
+	"goRoadMap/backend/internal/db"
+	"goRoadMap/backend/pkg/services/logger"
 
 	"github.com/robfig/cron/v3"
 	"go.uber.org/zap"

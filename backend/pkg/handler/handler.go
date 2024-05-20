@@ -2,7 +2,7 @@ package handler
 
 import (
 	"encoding/json"
-	"goRoadMap/pkg/services/logger"
+	"goRoadMap/backend/pkg/services/logger"
 	"net/http"
 
 	"go.uber.org/zap"

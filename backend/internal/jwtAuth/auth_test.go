@@ -1,12 +1,12 @@
 package jwtAuth_test
 
 import (
-	"goRoadMap/config"
-	"goRoadMap/internal/cache"
-	"goRoadMap/internal/db"
-	"goRoadMap/internal/errorz"
-	"goRoadMap/internal/jwtAuth"
-	"goRoadMap/pkg/services/logger"
+	"goRoadMap/backend/config"
+	"goRoadMap/backend/internal/cache"
+	"goRoadMap/backend/internal/db"
+	"goRoadMap/backend/internal/errorz"
+	"goRoadMap/backend/internal/jwtAuth"
+	"goRoadMap/backend/pkg/services/logger"
 	"testing"
 
 	"github.com/joho/godotenv"

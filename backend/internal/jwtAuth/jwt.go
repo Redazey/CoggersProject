@@ -4,8 +4,8 @@ import (
 	"os"
 	"time"
 
-	"goRoadMap/internal/errorz"
-	"goRoadMap/pkg/services/logger"
+	"goRoadMap/backend/internal/errorz"
+	"goRoadMap/backend/pkg/services/logger"
 
 	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"

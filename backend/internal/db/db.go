@@ -1,7 +1,7 @@
 package db
 
 import (
-	"goRoadMap/pkg/services/logger"
+	"goRoadMap/backend/pkg/services/logger"
 	"strings"
 
 	"github.com/jmoiron/sqlx"

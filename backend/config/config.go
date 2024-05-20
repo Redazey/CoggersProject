@@ -21,7 +21,7 @@ var config Config
 
 // не забудьте указать свой путь к файлу config.json
 func Init() {
-	configFile, err := os.ReadFile("C:/goRoadMap/config/config.json")
+	configFile, err := os.ReadFile("C:/goRoadMap/backend/config/config.json")
 	if err != nil {
 		log.Fatal("Ошибка при попытке прочитать файл конфигурации: ", err)
 		return

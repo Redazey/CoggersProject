@@ -1,9 +1,9 @@
 package cache_test
 
 import (
-	"goRoadMap/config"
-	"goRoadMap/internal/cache"
-	"goRoadMap/pkg/services/logger"
+	"goRoadMap/backend/config"
+	"goRoadMap/backend/internal/cache"
+	"goRoadMap/backend/pkg/services/logger"
 	"testing"
 
 	"github.com/joho/godotenv"

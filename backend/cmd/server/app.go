@@ -4,12 +4,12 @@ import (
 	"log"
 	"net/http"
 
-	"goRoadMap/config"
-	"goRoadMap/internal/db"
-	"goRoadMap/internal/jwtAuth"
-	"goRoadMap/pkg/handler"
-	"goRoadMap/pkg/services/cacher"
-	"goRoadMap/pkg/services/logger"
+	"goRoadMap/backend/config"
+	"goRoadMap/backend/internal/db"
+	"goRoadMap/backend/internal/jwtAuth"
+	"goRoadMap/backend/pkg/handler"
+	"goRoadMap/backend/pkg/services/cacher"
+	"goRoadMap/backend/pkg/services/logger"
 
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"

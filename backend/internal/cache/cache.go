@@ -5,9 +5,9 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
-	"goRoadMap/config"
-	"goRoadMap/internal/errorz"
-	"goRoadMap/pkg/services/logger"
+	"goRoadMap/backend/config"
+	"goRoadMap/backend/internal/errorz"
+	"goRoadMap/backend/pkg/services/logger"
 	"strings"
 	"time"
 

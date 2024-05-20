@@ -2,10 +2,10 @@ package jwtAuth
 
 import (
 	"database/sql"
-	"goRoadMap/internal/cache"
-	"goRoadMap/internal/db"
-	"goRoadMap/internal/errorz"
-	"goRoadMap/pkg/services/logger"
+	"goRoadMap/backend/internal/cache"
+	"goRoadMap/backend/internal/db"
+	"goRoadMap/backend/internal/errorz"
+	"goRoadMap/backend/pkg/services/logger"
 
 	"go.uber.org/zap"
 )
