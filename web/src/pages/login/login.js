@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import './login.css'; 
+import Header from "../../header";
 
 const LoginPage = () => {
   const [login, setLogin] = useState("");
@@ -10,12 +12,8 @@ const LoginPage = () => {
   };
 
   return (
-    <div>
-      <h1>Вход</h1>
-      <input type="text" placeholder="Логин" value={login} onChange={(e) => setLogin(e.target.value)} />
-      <input type="password" placeholder="Пароль" value={password} onChange={(e) => setPassword(e.target.value)} />
-      <button onClick={handleLogin}>Войти</button>
-    </div>
+    <Header />
+    
   );
 };
 

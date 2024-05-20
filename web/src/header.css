@@ -1,0 +1,31 @@
+.Header {
+    text-align: center;
+    height: 100%;
+    padding: 20px;
+    background-color: #EEEEF5;
+    color: #232328;
+}
+a {
+    text-decoration: none;
+    color: inherit;
+}
+a.navHref {
+    padding: 10px 20px;
+    margin: 0 10px;
+    background-color: transparent;
+    border: none;
+    color: #232328;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+a.navStyledHref { 
+    background-color: #FADB6F;
+    color: #232328;
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 10px; 
+}
+
+a.navHref:hover {
+    color: #97979D;
+}
