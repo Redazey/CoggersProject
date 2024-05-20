@@ -3,11 +3,13 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import LoginPage from './pages/login/login';
+import RegistrationPage from './pages/registration/registration';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <RegistrationPage />
   </React.StrictMode>
 );
 
