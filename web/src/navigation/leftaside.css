@@ -1,25 +1,45 @@
-.sidebar {
-    background-color: #444;
-    color: #fff;
-    width: 200px;
-    padding: 20px;
+aside {
+    min-width: 250px;
+    width: 15%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     border-right: #c3c3c3 solid 2px;
 }
 
-.sidebar nav {
+aside a:hover {
+    color: #c3c3c3;
+}
+
+aside .vertical-list {
+    width: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+aside .vertical-list li {
+    border-bottom: #c3c3c3 solid 2px;
+    padding: 7px 0px 7px 0px;
     display: flex;
-    flex-direction: column;
-    flex-grow: 1;
+    align-items: center;
 }
 
-.sidebar nav a {
-    color: #fff;
-    text-decoration: none;
-    padding: 10px 0;
+aside .vertical-list li img {
+    width: 25px;
+    margin: 5px 5px 5px 5px;
 }
 
-.sidebar nav a:hover {
-    background-color: #555;
+aside .vertical-list li:last-child {
+    border-bottom: none;
+}
+
+/* Стили для маленьких экранов (например, ширина < 768px) */
+@media screen and (max-width: 767px) {
+    aside{
+        display: none;
+    }
+    .element-to-show {
+        display: block;
+    }
 }

@@ -1,18 +1,7 @@
-* {
-    color: #232328;
-    font-size: 16pt;
-}
-
-a {
-    text-decoration: none;
-    color: inherit;
-}
-
 /* горизонтальная навигационка */
 .Header {
-    background-color: #f5f5f5;
+    background-color: #232328;
     border-bottom: #c3c3c3 solid 2px;
-    color: white;
     padding: 20px 40px;
     max-height: 40px;   
     display: flex;
@@ -22,11 +11,32 @@ a {
 }
 
 .MainButtons a { 
+    display: inline-block;
     background-color: #FADB6F;
     margin: 20px 40px 20px 0;
     padding: 15px 40px;
     border-radius: 30px;
     transition: transform 0.3s;
+}
+
+/* Стили для больших экранов (например, ширина >= 768px) */
+@media screen and (min-width: 768px) {
+    .MainButtons{
+        display: block;
+    }
+    .element-to-show {
+        display: none;
+    }
+}
+
+/* Стили для маленьких экранов (например, ширина < 768px) */
+@media screen and (max-width: 767px) {
+    .MainButtons{
+        display: none;
+    }
+    .element-to-show {
+        display: block;
+    }
 }
 
 .MainButtons a:hover { 

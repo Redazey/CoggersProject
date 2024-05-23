@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import './MainPage.css'; 
 import Header from "../../navigation/header";
-import leftaside from "../../navigation/leftaside";
+import Leftaside from "../../navigation/leftaside";
 
 const LoginPage = () => {
   const [login, setLogin] = useState("");
@@ -15,7 +15,14 @@ const LoginPage = () => {
   return (
     <div className="Content">
         <Header />
-        <leftaside />
+        <Leftaside />
+        <div className="main">
+            <p>
+
+            </p>
+            <img />
+            
+        </div>
     </div>
   );
 };

@@ -1,3 +1,10 @@
 .Content {
-    
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.Content a {
+    text-decoration: none;
+    color: inherit;
 }
