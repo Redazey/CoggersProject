@@ -1,0 +1,42 @@
+* {
+    color: #232328;
+    font-size: 16pt;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* горизонтальная навигационка */
+.Header {
+    background-color: #f5f5f5;
+    border-bottom: #c3c3c3 solid 2px;
+    color: white;
+    padding: 20px 40px;
+    max-height: 40px;   
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.MainButtons a { 
+    background-color: #FADB6F;
+    margin: 20px 40px 20px 0;
+    padding: 15px 40px;
+    border-radius: 30px;
+    transition: transform 0.3s;
+}
+
+.MainButtons a:hover { 
+    transform: translateY(-5px);
+}
+
+.logo {
+    display: inline-flex;
+}
+
+.logo .logo__img img {
+    height: 70px;
+}
