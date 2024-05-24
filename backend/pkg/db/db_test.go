@@ -1,11 +1,11 @@
 package db_test
 
 import (
-	"goRoadMap/backend/config"
-	"goRoadMap/backend/internal/cache"
-	"goRoadMap/backend/internal/db"
-	"goRoadMap/backend/internal/jwtAuth"
-	"goRoadMap/backend/pkg/services/logger"
+	"CoggersProject/backend/config"
+	"CoggersProject/backend/internal/cache"
+	"CoggersProject/backend/internal/db"
+	"CoggersProject/backend/internal/jwtAuth"
+	"CoggersProject/backend/pkg/services/logger"
 	"testing"
 
 	"github.com/joho/godotenv"

@@ -1,10 +1,10 @@
 package jwtAuth_test
 
 import (
-	"goRoadMap/backend/config"
-	"goRoadMap/backend/internal/errorz"
-	"goRoadMap/backend/pkg/jwtAuth"
-	"goRoadMap/backend/pkg/services/logger"
+	"CoggersProject/backend/config"
+	"CoggersProject/backend/internal/errorz"
+	"CoggersProject/backend/pkg/jwtAuth"
+	"CoggersProject/backend/pkg/services/logger"
 
 	"os"
 	"testing"

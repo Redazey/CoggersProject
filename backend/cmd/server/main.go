@@ -1,7 +1,7 @@
 package main
 
 import (
-	"goRoadMap/backend/internal/pkg/app"
+	"CoggersProject/backend/internal/pkg/app"
 	"log"
 )
 

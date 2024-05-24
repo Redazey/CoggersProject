@@ -1,12 +1,12 @@
 package auth_test
 
 import (
-	"goRoadMap/backend/config"
-	"goRoadMap/backend/internal/errorz"
-	"goRoadMap/backend/pkg/cache"
-	"goRoadMap/backend/pkg/db"
-	"goRoadMap/backend/pkg/jwtAuth"
-	"goRoadMap/backend/pkg/services/logger"
+	"CoggersProject/backend/config"
+	"CoggersProject/backend/internal/errorz"
+	"CoggersProject/backend/pkg/cache"
+	"CoggersProject/backend/pkg/db"
+	"CoggersProject/backend/pkg/jwtAuth"
+	"CoggersProject/backend/pkg/services/logger"
 	"testing"
 
 	"github.com/joho/godotenv"

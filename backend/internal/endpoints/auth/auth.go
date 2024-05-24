@@ -1,11 +1,11 @@
 package auth
 
 import (
+	"CoggersProject/backend/internal/errorz"
+	"CoggersProject/backend/pkg/cache"
+	"CoggersProject/backend/pkg/db"
+	"CoggersProject/backend/pkg/services/logger"
 	"database/sql"
-	"goRoadMap/backend/internal/errorz"
-	"goRoadMap/backend/pkg/cache"
-	"goRoadMap/backend/pkg/db"
-	"goRoadMap/backend/pkg/services/logger"
 	"net/http"
 
 	"github.com/labstack/echo"

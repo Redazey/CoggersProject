@@ -1,12 +1,12 @@
 package app
 
 import (
-	"goRoadMap/backend/config"
-	"goRoadMap/backend/internal/endpoints/auth"
-	"goRoadMap/backend/pkg/db"
-	"goRoadMap/backend/pkg/jwtAuth"
-	"goRoadMap/backend/pkg/services/cacher"
-	"goRoadMap/backend/pkg/services/logger"
+	"CoggersProject/backend/config"
+	"CoggersProject/backend/internal/endpoints/auth"
+	"CoggersProject/backend/pkg/db"
+	"CoggersProject/backend/pkg/jwtAuth"
+	"CoggersProject/backend/pkg/services/cacher"
+	"CoggersProject/backend/pkg/services/logger"
 	"log"
 
 	"github.com/joho/godotenv"

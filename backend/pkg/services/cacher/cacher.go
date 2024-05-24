@@ -1,10 +1,10 @@
 package cacher
 
 import (
+	"CoggersProject/backend/pkg/cache"
+	"CoggersProject/backend/pkg/db"
+	"CoggersProject/backend/pkg/services/logger"
 	"fmt"
-	"goRoadMap/backend/pkg/cache"
-	"goRoadMap/backend/pkg/db"
-	"goRoadMap/backend/pkg/services/logger"
 
 	"github.com/robfig/cron/v3"
 	"go.uber.org/zap"

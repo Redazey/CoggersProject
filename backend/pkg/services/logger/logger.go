@@ -18,7 +18,7 @@ func Init(loggerLevel string) {
 
 	fileEncoder := zapcore.NewJSONEncoder(config)
 	consoleEncoder := zapcore.NewConsoleEncoder(config)
-	logFile, err := os.OpenFile("C:/goRoadMap/backend/logs/golog", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	logFile, err := os.OpenFile("C:/CoggersProject/backend/logs/golog", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
 	if err != nil {
 		log.Fatalf("Ошибка создания файла golog %s", err)
