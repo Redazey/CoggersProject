@@ -8,7 +8,7 @@ import (
 
 type Cache struct {
 	EXTime         int    `json:"EXTime"`
-	UpdateInterval string `json:"updateInterval"`
+	UpdateInterval string `json:"updateTime"`
 }
 
 type Config struct {

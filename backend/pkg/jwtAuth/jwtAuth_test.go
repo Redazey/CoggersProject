@@ -3,7 +3,7 @@ package jwtAuth_test
 import (
 	"goRoadMap/backend/config"
 	"goRoadMap/backend/internal/errorz"
-	"goRoadMap/backend/internal/jwtAuth"
+	"goRoadMap/backend/pkg/jwtAuth"
 	"goRoadMap/backend/pkg/services/logger"
 
 	"os"
@@ -25,13 +25,12 @@ func TestKeygen(t *testing.T) {
 	assert.Nil(t, err, "Ошибка при открытии env файла: %v", err)
 
 	secret := os.Getenv("JWT_KEY")
-	data := map[string]string{
-		"username": "testuser",
-	}
+	username := "username"
+	password := "testpwd"
 
 	t.Run("GenerateToken", func(t *testing.T) {
 		// Вызов тестируемой функции
-		tokenMap, err := jwtAuth.Keygen(data)
+		tokenMap, err := jwtAuth.K(username, password)
 		assert.Nil(t, err, "Не ожидаем ошибку, получили: %v", err)
 
 		// Проверка наличия сообщения возвращаемого токена

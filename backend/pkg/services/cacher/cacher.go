@@ -2,8 +2,8 @@ package cacher
 
 import (
 	"fmt"
-	"goRoadMap/backend/internal/cache"
-	"goRoadMap/backend/internal/db"
+	"goRoadMap/backend/pkg/cache"
+	"goRoadMap/backend/pkg/db"
 	"goRoadMap/backend/pkg/services/logger"
 
 	"github.com/robfig/cron/v3"
@@ -27,7 +27,7 @@ func cacheUpdate() {
 }
 
 func Init(interval string) {
-	intervalStr := fmt.Sprintf("0 */%s * * * *", interval)
+	intervalStr := fmt.Sprintf("%s * * * *", interval)
 
 	c := cron.New()
 	_, err := c.AddFunc(intervalStr, cacheUpdate)

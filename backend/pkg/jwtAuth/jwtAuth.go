@@ -11,17 +11,21 @@ import (
 	"go.uber.org/zap"
 )
 
-func Keygen(data map[string]string) (map[string]string, error) {
+type Service struct {
+}
 
-	returnDataMap := make(map[string]string)
-	username := data["username"]
+func New() *Service {
+	return &Service{}
+}
 
+func (s *Service) Keygen(username string, pwd string) (string, error) {
 	// Создаем новый JWT токен
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	// Указываем параметры для токена
 	claims := token.Claims.(jwt.MapClaims)
 	claims["username"] = username
+	claims["password"] = pwd
 	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
 
 	secretKey := []byte(os.Getenv("JWT_KEY"))
@@ -31,17 +35,13 @@ func Keygen(data map[string]string) (map[string]string, error) {
 
 	if err != nil {
 		logger.Error("ошибка при подписи токена: ", zap.Error(err))
-		return nil, err
-	} else {
-		returnDataMap["message"] = tokenString
+		return "", err
 	}
 
-	return returnDataMap, nil
+	return tokenString, nil
 }
 
-func TokenAuth(data map[string]string) (map[string]string, error) {
-
-	tokenString := data["token"]
+func (s *Service) TokenAuth(tokenString string) (bool, error) {
 	secretKey := []byte(os.Getenv("JWT_KEY"))
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -50,7 +50,7 @@ func TokenAuth(data map[string]string) (map[string]string, error) {
 
 	if err != nil {
 		logger.Error("ошибка при чтении токена: ", zap.Error(err))
-		return nil, err
+		return false, err
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
@@ -59,13 +59,13 @@ func TokenAuth(data map[string]string) (map[string]string, error) {
 		expirationTime := time.Unix(int64(claims["exp"].(float64)), 0)
 
 		if time.Now().After(expirationTime) {
-			return nil, errorz.ErrTokenExpired
+			return false, errorz.ErrTokenExpired
 		}
 
 	} else {
 		logger.Error("невалидный токен: ", zap.Error(errorz.ErrValidation))
-		return nil, errorz.ErrValidation
+		return false, errorz.ErrValidation
 	}
 
-	return data, nil
+	return true, nil
 }
