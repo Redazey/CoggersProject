@@ -1,10 +1,75 @@
-.Content {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-}
-
 .Content a {
     text-decoration: none;
     color: inherit;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+}
+.main-container main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.main-container main h2 {
+    display: block;
+    height: fit-content;
+    margin: 20px;
+}
+
+.main-container main img {
+    height: 400px;
+    margin-bottom: -200px;
+    z-index: 0;
+}
+
+.news-container {
+    height: 100%;
+    width: 80%;
+    background-color: #232328;
+    border-top-left-radius: 50px;
+    border-top-right-radius: 50px;
+    z-index: 1;
+    padding: 50px;
+}
+
+.news-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 100px;
+}
+
+.news-item .news-text {
+    color: white;
+    display: flex;
+    flex-direction: column;
+    height: 250px;
+    margin-right: 40px;
+}
+
+.news-item img {
+    display: block;
+    border-radius: 50px;
+    height: 250px;
+}
+
+/* Стили для маленьких экранов (например, ширина < 768px) */
+@media screen and (max-width: 767px) {
+    .news-container {
+        width: 100%;
+    }
+}
+
+/* Стили для больших экранов (например, ширина >= 768px) */
+@media screen and (min-width: 768px) {
+    .MainButtons{
+        display: block;
+    }
+    .element-to-show {
+        display: none;
+    }
 }

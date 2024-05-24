@@ -8,7 +8,11 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: #232328;
-    font-size: 16pt;
+    font-size: 14pt;
+}
+
+h2 {
+    font-size: 28pt;
 }
 
 code {
