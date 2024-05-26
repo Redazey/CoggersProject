@@ -8,7 +8,7 @@ const Header = () => {
     <div className="Header">
         <div className="logo">
             <Link className="logo__img" to="#"><img src={require('../imgs/logo.png')}/></Link>
-            <div className="logo__text"></div>
+            <div className="logo__text">Coggers Project</div>
         </div>
         
         <div className="MainButtons">

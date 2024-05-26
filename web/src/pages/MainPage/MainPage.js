@@ -31,9 +31,12 @@ const LoginPage = () => {
         <div className="main-container">
             <Leftaside />
             <main>
-                <h2>Лучший технический Майнкрафт-проект</h2>
+                <h2></h2>
                 <img id="scrolling-image" src={require('../../imgs/content.png')}/>
                 <scrollImage />
+                <div className="launcher-preview">
+
+                </div>
                 <div className="news-container">
                     <div className="news-item">
                         

@@ -4,11 +4,13 @@ aside {
     height: 100%;
     display: flex;
     flex-direction: column;
-    border-right: #c3c3c3 solid 2px;
+    border-right: #2B2B2B solid 2px;
+    background-color: #1B1B1B;
+    z-index: 2;
 }
 
 aside a:hover {
-    color: #c3c3c3;
+    color: #d6d6d6;
 }
 
 aside .vertical-list {
@@ -19,7 +21,7 @@ aside .vertical-list {
 }
 
 aside .vertical-list li {
-    border-bottom: #c3c3c3 solid 2px;
+    border-bottom: #2B2B2B solid 2px;
     padding: 7px 0px 7px 0px;
     display: flex;
     align-items: center;
@@ -34,8 +36,8 @@ aside .vertical-list li:last-child {
     border-bottom: none;
 }
 
-/* Стили для маленьких экранов (например, ширина < 768px) */
-@media screen and (max-width: 767px) {
+/* Стили для маленьких экранов (например, ширина < 1050px) */
+@media screen and (max-width: 1050px) {
     aside{
         display: none;
     }

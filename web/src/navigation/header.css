@@ -1,9 +1,9 @@
 /* горизонтальная навигационка */
 .Header {
     background-color: #232328;
-    border-bottom: #c3c3c3 solid 2px;
+    border-bottom: #2B2B2B solid 2px;
     padding: 20px 40px;
-    max-height: 40px;   
+    max-height: 70px;   
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -11,11 +11,12 @@
 }
 
 .MainButtons a { 
+    color: #232328;
     display: inline-block;
     background-color: #FADB6F;
     margin: 20px 40px 20px 0;
     padding: 15px 40px;
-    border-radius: 30px;
+    border-radius: 20px;
     transition: transform 0.3s;
 }
 
