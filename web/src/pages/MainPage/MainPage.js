@@ -29,19 +29,13 @@ const LoginPage = () => {
     return (
     <div className="Content">
         <Header />
-        <div className="main-container">
-            <Leftaside />
-            <main>
-                <div className="launcher-preview">
-                <Router>
-                    <h1>Начните играть с нашим лаунчером!</h1>
-                    <Link to="#">Скачать лаунчер</Link>
-                </Router>
-                </div>
-
+        <main>
+            <div className="top-content">
                 <img id="scrolling-image" src={require('../../imgs/content.png')}/>
                 <scrollImage />
-                
+            </div>
+
+            <div className="mid-content">
                 <div className="news-container">
                     <div className="news-item">
                         
@@ -54,9 +48,9 @@ const LoginPage = () => {
                         
                         <img src={require('../../imgs/new1.png')}/>
                     </div>
-                </div>
-            </main>
-        </div>
+                </div>  
+            </div>
+        </main>
     </div>
     );
 };

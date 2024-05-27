@@ -4,55 +4,45 @@
 }
 
 /* Настройка общего контейнера */
-.main-container {
-    display: flex;
-    flex-direction: row;
-    height: 100vh;
-    background-color: #1B1B1B;
-}
-.main-container main {
+main {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    min-height: 100vh;
+    background-color: #1B1B1B;
 }
 
-.main-container main h2 {
-    display: block;
-    height: fit-content;
-    margin: 20px;
-}
+.top-content {
+    background-image: url('../../imgs/bg.jpg');
+    background-size: cover;
+    background-position: center;
 
-/* предложение скачать лаунчер */
-.launcher-preview {
+    padding-top: 100px;
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 0;
 }
-
-.launcher-preview Link{
-    
-}
-
-.launcher-preview Link{
-    display: block;
-    border-radius: 30px;
-    background-color: #FADB6F;
-}
-
 /* шестеренка */
-.main-container main img {
+.top-content img {
     height: 400px;
     margin-bottom: -200px;
     z-index: 0;
 }
 
+.mid-content {
+    justify-content: center;
+    flex-direction: row;
+    z-index: 1;
+    height: 100%;
+}
+
 /* блок новостей */
-.news-container {
+.mid-content .news-container {
     height: 100%;
     width: 70%;
     background-color: #2B2B2B;
-    border-top-left-radius: 50px;
-    border-top-right-radius: 50px;
+
     z-index: 1;
     padding: 50px;
 }
