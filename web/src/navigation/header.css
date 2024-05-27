@@ -10,6 +10,10 @@
     align-items: center;
 }
 
+.Header .logo__text {
+    margin: auto 0 auto 20px;
+}
+
 .MainButtons a { 
     color: #232328;
     display: inline-block;

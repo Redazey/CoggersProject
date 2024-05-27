@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import './MainPage.css'; 
+import { BrowserRouter as Router, Link } from 'react-router-dom';
 import Header from "../../navigation/header";
 import Leftaside from "../../navigation/leftaside";
 
@@ -31,12 +32,16 @@ const LoginPage = () => {
         <div className="main-container">
             <Leftaside />
             <main>
-                <h2></h2>
+                <div className="launcher-preview">
+                <Router>
+                    <h1>Начните играть с нашим лаунчером!</h1>
+                    <Link to="#">Скачать лаунчер</Link>
+                </Router>
+                </div>
+
                 <img id="scrolling-image" src={require('../../imgs/content.png')}/>
                 <scrollImage />
-                <div className="launcher-preview">
-
-                </div>
+                
                 <div className="news-container">
                     <div className="news-item">
                         

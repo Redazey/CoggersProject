@@ -3,6 +3,7 @@
     color: inherit;
 }
 
+/* Настройка общего контейнера */
 .main-container {
     display: flex;
     flex-direction: row;
@@ -21,12 +22,31 @@
     margin: 20px;
 }
 
+/* предложение скачать лаунчер */
+.launcher-preview {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.launcher-preview Link{
+    
+}
+
+.launcher-preview Link{
+    display: block;
+    border-radius: 30px;
+    background-color: #FADB6F;
+}
+
+/* шестеренка */
 .main-container main img {
     height: 400px;
     margin-bottom: -200px;
     z-index: 0;
 }
 
+/* блок новостей */
 .news-container {
     height: 100%;
     width: 70%;
