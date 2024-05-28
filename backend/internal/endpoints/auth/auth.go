@@ -32,7 +32,7 @@ func New(s Service) *Endpoint {
 }
 
 // передаем в эту функцию username и password
-func (e *Endpoint) GetLoginData(ctx echo.Context) error {
+func (e *Endpoint) UserLogin(ctx echo.Context) error {
 	message := ctx.Request().Header
 	username := message.Get("username")
 	password := message.Get("password")

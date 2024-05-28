@@ -45,8 +45,8 @@ func New() (*App, error) {
 	// здесь используем MW (логгер, рековер, т.д.)
 	// a.echo.Use()
 
-	a.echo.GET("/tokenAuth", a.e.GetLoginData)
-	a.echo.GET("/newUserRegistration", a.e.NewUserRegistration)
+	a.echo.GET("/UserLogin", a.e.UserLogin)
+	a.echo.GET("/NewUserRegistration", a.e.NewUserRegistration)
 
 	err = db.InitiateTables()
 	if err != nil {
