@@ -2,8 +2,9 @@ package cache_test
 
 import (
 	"CoggersProject/backend/config"
-	"CoggersProject/backend/i/cache"
-	"CoggersProject/backend/pkg/services/logger"
+	"CoggersProject/backend/pkg/cache"
+	"CoggersProject/backend/pkg/service/logger"
+	"net/http"
 	"testing"
 
 	"github.com/joho/godotenv"
@@ -11,12 +12,14 @@ import (
 )
 
 var (
-	dummydata = map[string]string{
+	// Создаем пустой Header
+	dummydata = make(http.Header)
+
+	values = map[string]string{
 		"username": "testuser",
 		"password": "exampass",
 		"roleid":   "1",
 	}
-	convertedData, hashKey = cache.ConvertMap(dummydata, "username", "password")
 )
 
 func TestCreateDummyData(t *testing.T) {
@@ -26,15 +29,23 @@ func TestCreateDummyData(t *testing.T) {
 	godotenv.Load(config.EnvPath)
 	cache.ClearCache()
 
-	t.Run("FillingWithData", func(t *testing.T) {
+	// Добавляем значения в dummydata
+	dummydata.Set("Content-Type", "application/json")
+
+	// Выводим значения dummydata
+	for key, values := range values {
+		dummydata.Add(key, values)
+	}
+	convertedData, hashKey := cache.ConvertMap(dummydata, "username", "password")
+
+	t.Run("FillingWithData Test", func(t *testing.T) {
 		err := cache.SaveCache("test", convertedData)
 		assert.NoError(t, err, "ошибка при заполнении Redis: %v", err)
 	})
-}
-func TestIsDataInCache(t *testing.T) {
+
 	// Тестирование кейса, когда данные есть в кэше
-	t.Run("DataInCache", func(t *testing.T) {
-		result, err := cache.IsDataInCache("test", hashKey, "password")
+	t.Run("DataInCache Test", func(t *testing.T) {
+		result, err := cache.IsDataInCache("test", hashKey, "Password")
 
 		assert.NoError(t, err, "ошибок при выполнении не найдено")
 		assert.Equal(t, "exampass", result, "ожидаемое значение - \"exampass\", вышло: %v", result)
@@ -46,15 +57,14 @@ func TestIsDataInCache(t *testing.T) {
 		assert.Nil(t, err, "неожиданная ошибка: %v", err)
 		assert.Nil(t, result, "ожидалось nil, вышло: %v", result)
 	})
-}
 
-func TestReadCache(t *testing.T) {
 	// Тестирование чтения кэша с определенным ключом
 	t.Run("ReadSpecificKey", func(t *testing.T) {
 		expectedValue := map[string]interface{}{
-			"username": "testuser",
-			"password": "exampass",
-			"roleid":   "1",
+			"Content-Type": "application/json",
+			"Password":     "exampass",
+			"Roleid":       "1",
+			"Username":     "testuser",
 		}
 		result, err := cache.ReadCache("test")
 

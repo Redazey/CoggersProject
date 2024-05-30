@@ -1,7 +1,7 @@
 package db
 
 import (
-	"CoggersProject/backend/pkg/services/logger"
+	"CoggersProject/backend/pkg/service/logger"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -13,6 +13,12 @@ import (
 )
 
 func dbConnect() (*sqlx.DB, error) {
+	defer func() {
+		if r := recover(); r != nil {
+			// Обработка паники
+			fmt.Println("Паника обработана:", r)
+		}
+	}()
 	var (
 		user     = os.Getenv("DB_USER")
 		password = os.Getenv("DB_PASSWORD")
@@ -41,6 +47,12 @@ func dbConnect() (*sqlx.DB, error) {
 }
 
 func InitiateTables() error {
+	defer func() {
+		if r := recover(); r != nil {
+			// Обработка паники
+			fmt.Println("Паника обработана:", r)
+		}
+	}()
 	// обьявляем список выполняемых SQL запросов
 	SQLqueries := []string{
 		`CREATE TABLE IF NOT EXISTS roles (

@@ -4,7 +4,7 @@ import (
 	"CoggersProject/backend/config"
 	"CoggersProject/backend/internal/errorz"
 	"CoggersProject/backend/pkg/jwtAuth"
-	"CoggersProject/backend/pkg/services/logger"
+	"CoggersProject/backend/pkg/service/logger"
 
 	"os"
 	"testing"
@@ -15,7 +15,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestKeygen(t *testing.T) {
+func TestJwtAuth(t *testing.T) {
+	s := jwtAuth.New()
+
 	config.Init()
 	config := config.GetConfig()
 	logger.Init(config.LoggerMode)
@@ -30,14 +32,13 @@ func TestKeygen(t *testing.T) {
 
 	t.Run("GenerateToken", func(t *testing.T) {
 		// Вызов тестируемой функции
-		tokenMap, err := jwtAuth.K(username, password)
+		tokenString, err := s.Keygen(username, password)
 		assert.Nil(t, err, "Не ожидаем ошибку, получили: %v", err)
 
 		// Проверка наличия сообщения возвращаемого токена
-		assert.NotNil(t, tokenMap["message"], "Ожидаем наличие сообщения в токене")
+		assert.NotNil(t, tokenString, "Ожидаем наличие сообщения в токене")
 
 		// Проверка на генерацию корректного JWT-токена
-		tokenString := tokenMap["message"]
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			return []byte(secret), nil
 		})
@@ -50,29 +51,12 @@ func TestKeygen(t *testing.T) {
 		expTime := time.Unix(int64(exp), 0)
 		assert.False(t, expTime.Before(time.Now()), "Срок действия токена истек")
 	})
-}
-
-func TestTokenAuth(t *testing.T) {
-	secret := os.Getenv("JWT_KEY")
-
-	t.Run("TokenAuthentication", func(t *testing.T) {
-		// Генерируем JWT-токен для теста
-		tokenData := map[string]string{
-			"username": "testuser",
-		}
-		tokenMap, _ := jwtAuth.Keygen(tokenData)
-		tokenString := tokenMap["message"]
-
-		// Формируем входные данные для функции TokenAuth
-		data := map[string]string{
-			"token": tokenString,
-		}
-
+	t.Run("TokenAuth", func(t *testing.T) {
+		tokenString, err := s.Keygen(username, password)
 		// Вызываем тестируемую функцию
-		_, err := jwtAuth.TokenAuth(data)
+		isTokenValid, err := s.TokenAuth(tokenString)
+		assert.Equal(t, isTokenValid, true)
 		assert.Nil(t, err, "Не ожидаем ошибку, получили: %v", err)
-
-		// В данном тесте не проверяем содержимое returnDataMap, так как функция TokenAuth не модифицирует его
 
 		// Проверяем корректность обработки истекшего токена
 		claims := jwt.MapClaims{}
@@ -87,12 +71,10 @@ func TestTokenAuth(t *testing.T) {
 		claims["exp"] = now.Unix()
 
 		tokenString, _ = jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(secret))
-		dataExpired := map[string]string{
-			"token": tokenString,
-		}
 
-		_, errExpired := jwtAuth.TokenAuth(dataExpired)
-		assert.EqualError(t, errExpired, errorz.ErrTokenExpired.Error(),
-			"Ожидаем ошибку TokenExpired, получили другую ошибку: %v", errExpired)
+		isTokenValid, err = s.TokenAuth(tokenString)
+		assert.Equal(t, isTokenValid, false)
+		assert.EqualError(t, err, errorz.ErrTokenExpired.Error(),
+			"Ожидаем ошибку TokenExpired, получили другую ошибку: %v", err)
 	})
 }

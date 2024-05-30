@@ -17,12 +17,13 @@ main {
     background-position: center;
 
     padding-top: 100px;
-    display: flex;
+    display: flex;  
     justify-content: center;
     align-items: center;
     flex-direction: column;
     z-index: 0;
 }
+
 /* шестеренка */
 .top-content img {
     height: 400px;
@@ -31,16 +32,16 @@ main {
 }
 
 .mid-content {
-    justify-content: center;
-    flex-direction: row;
     z-index: 1;
-    height: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 /* блок новостей */
-.mid-content .news-container {
+.news-container {
+    justify-self: center;
     height: 100%;
-    width: 70%;
+    width: 100%;
     background-color: #2B2B2B;
 
     z-index: 1;
@@ -71,7 +72,7 @@ main {
 /* Стили для маленьких экранов (например, ширина < 1050px) */
 @media screen and (max-width: 1050px) {
     .news-container {
-        width: 85%;
+        width: 100;
     }
     .news-item {
         flex-direction: column;

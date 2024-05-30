@@ -4,7 +4,7 @@ import (
 	"CoggersProject/backend/internal/errorz"
 	"CoggersProject/backend/pkg/cache"
 	"CoggersProject/backend/pkg/db"
-	"CoggersProject/backend/pkg/services/logger"
+	"CoggersProject/backend/pkg/service/logger"
 	"database/sql"
 	"net/http"
 

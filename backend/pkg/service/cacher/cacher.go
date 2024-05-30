@@ -3,7 +3,7 @@ package cacher
 import (
 	"CoggersProject/backend/pkg/cache"
 	"CoggersProject/backend/pkg/db"
-	"CoggersProject/backend/pkg/services/logger"
+	"CoggersProject/backend/pkg/service/logger"
 	"fmt"
 
 	"github.com/robfig/cron/v3"

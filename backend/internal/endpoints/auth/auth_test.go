@@ -4,9 +4,10 @@ import (
 	"CoggersProject/backend/config"
 	"CoggersProject/backend/internal/endpoints/auth"
 	"CoggersProject/backend/internal/errorz"
+	"CoggersProject/backend/internal/mw"
 	"CoggersProject/backend/pkg/jwtAuth"
-	"CoggersProject/backend/pkg/services/cacher"
-	"CoggersProject/backend/pkg/services/logger"
+	"CoggersProject/backend/pkg/service/cacher"
+	"CoggersProject/backend/pkg/service/logger"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -40,6 +41,7 @@ func TestAuth(t *testing.T) {
 	a.s = jwtAuth.New()
 	a.e = auth.New(a.s)
 	a.echo = echo.New()
+	a.echo.Use(mw.Recovery)
 
 	t.Run("NewUserRegistration Test", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/NewUserRegistration", nil)

@@ -3,7 +3,7 @@ package cache
 import (
 	"CoggersProject/backend/config"
 	"CoggersProject/backend/internal/errorz"
-	"CoggersProject/backend/pkg/services/logger"
+	"CoggersProject/backend/pkg/service/logger"
 	"context"
 	"crypto/md5"
 	"encoding/hex"

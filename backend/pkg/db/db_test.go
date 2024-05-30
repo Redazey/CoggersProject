@@ -2,15 +2,26 @@ package db_test
 
 import (
 	"CoggersProject/backend/config"
-	"CoggersProject/backend/internal/cache"
-	"CoggersProject/backend/internal/db"
-	"CoggersProject/backend/internal/jwtAuth"
-	"CoggersProject/backend/pkg/services/logger"
+	"CoggersProject/backend/internal/endpoints/auth"
+	"CoggersProject/backend/internal/mw"
+	"CoggersProject/backend/pkg/cache"
+	"CoggersProject/backend/pkg/db"
+	"CoggersProject/backend/pkg/jwtAuth"
+	"CoggersProject/backend/pkg/service/logger"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 )
+
+type App struct {
+	e    *auth.Endpoint
+	s    *jwtAuth.Service
+	echo *echo.Echo
+}
 
 func TestInitiateTables(t *testing.T) {
 	config.Init()
@@ -19,10 +30,11 @@ func TestInitiateTables(t *testing.T) {
 	godotenv.Load(config.EnvPath)
 	cache.ClearCache()
 
-	testUserData := map[string]string{
-		"username": "testuser",
-		"password": "testpass",
-	}
+	a := &App{}
+	a.s = jwtAuth.New()
+	a.e = auth.New(a.s)
+	a.echo = echo.New()
+	a.echo.Use(mw.Recovery)
 
 	expectedUserData := map[string]string{
 		"username": "testuser",
@@ -30,12 +42,15 @@ func TestInitiateTables(t *testing.T) {
 		"roleid":   "1",
 	}
 
-	jwtAuth.NewUserRegistration(testUserData)
+	req := httptest.NewRequest(http.MethodGet, "/NewUserRegistration", nil)
+	req.Header.Set("username", "testuser")
+	req.Header.Set("password", "testpass")
+	rec := httptest.NewRecorder()
+	ctx := a.echo.NewContext(req, rec)
+	a.e.NewUserRegistration(ctx)
 
-	t.Run("PullDataFromCache Test", func(t *testing.T) {
-		cacheMap, _ := cache.ReadCache("users")
-
-		err := db.PullData("users", cacheMap)
+	t.Run("InitiateTables Test", func(t *testing.T) {
+		err := db.InitiateTables()
 		assert.Nil(t, err, "Не ожидаем ошибку, получили: %v", err)
 	})
 

@@ -48,7 +48,7 @@ const LoginPage = () => {
                         
                         <img src={require('../../imgs/new1.png')}/>
                     </div>
-                </div>  
+                </div>
             </div>
         </main>
     </div>

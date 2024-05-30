@@ -1,6 +1,6 @@
 {
     "envPath": "C:/CoggersProject/.env",
-    "loggerMode": "info",
+    "loggerMode": "debug",
     "cache": {
         "EXTime": 16,
         "updateTime": "15"

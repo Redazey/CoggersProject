@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"CoggersProject/backend/internal/errorz"
-	"CoggersProject/backend/pkg/services/logger"
+	"CoggersProject/backend/pkg/service/logger"
 
 	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"

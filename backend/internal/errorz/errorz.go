@@ -10,4 +10,5 @@ var (
 	ErrValidation   = errors.New("validationError")
 	ErrNilCacheData = errors.New("nilCacheData")
 	ErrUserNotFound = errors.New("userNotFound")
+	ErrPanicHandle  = errors.New("panicHandle")
 )

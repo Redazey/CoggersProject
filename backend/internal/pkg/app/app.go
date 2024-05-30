@@ -3,10 +3,11 @@ package app
 import (
 	"CoggersProject/backend/config"
 	"CoggersProject/backend/internal/endpoints/auth"
+	"CoggersProject/backend/internal/mw"
 	"CoggersProject/backend/pkg/db"
 	"CoggersProject/backend/pkg/jwtAuth"
-	"CoggersProject/backend/pkg/services/cacher"
-	"CoggersProject/backend/pkg/services/logger"
+	"CoggersProject/backend/pkg/service/cacher"
+	"CoggersProject/backend/pkg/service/logger"
 	"log"
 
 	"github.com/joho/godotenv"
@@ -26,6 +27,7 @@ func New() (*App, error) {
 	a.s = jwtAuth.New()
 
 	a.e = auth.New(a.s)
+
 	// инициализируем конфиг, .env, логгер и кэш
 	config.Init()
 	config := config.GetConfig()
@@ -41,9 +43,7 @@ func New() (*App, error) {
 	cacher.Init(config.Cache.UpdateInterval)
 
 	a.echo = echo.New()
-
-	// здесь используем MW (логгер, рековер, т.д.)
-	// a.echo.Use()
+	a.echo.Use(mw.Recovery)
 
 	a.echo.GET("/UserLogin", a.e.UserLogin)
 	a.echo.GET("/NewUserRegistration", a.e.NewUserRegistration)
@@ -53,6 +53,7 @@ func New() (*App, error) {
 		logger.Fatal("ошибка при инициализации БД: ", zap.Error(err))
 		return nil, err
 	}
+	logger.Error("zxc")
 
 	return a, nil
 }
@@ -62,8 +63,6 @@ func (a *App) Run() error {
 	if err != nil {
 		logger.Fatal("Ошибка при инициализации сервера: ", zap.Error(err))
 		return err
-	} else {
-		logger.Info("Server is running on http://localhost:8080")
 	}
 
 	return nil
