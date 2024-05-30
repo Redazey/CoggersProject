@@ -1,6 +1,8 @@
 .Content a {
     text-decoration: none;
     color: inherit;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Настройка общего контейнера */
@@ -41,11 +43,12 @@ main {
 .news-container {
     justify-self: center;
     height: 100%;
-    width: 100%;
     background-color: #2B2B2B;
 
     z-index: 1;
     padding: 50px;
+    border-top-left-radius: 50px;
+    border-top-right-radius: 50px;
 }
 
 .news-item {
@@ -72,7 +75,8 @@ main {
 /* Стили для маленьких экранов (например, ширина < 1050px) */
 @media screen and (max-width: 1050px) {
     .news-container {
-        width: 100;
+        width: 100%;
+        border-radius: 0px;
     }
     .news-item {
         flex-direction: column;
@@ -82,6 +86,6 @@ main {
 /* Стили для больших экранов (например, ширина >= 1050px) */
 @media screen and (min-width: 1050px) {
     .news-container {
-        width: 80%;
+        width: 70%;
     }
 }

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import './MainPage.css'; 
 import { BrowserRouter as Router, Link } from 'react-router-dom';
 import Header from "../../navigation/header";
+import Footer from "../../footer";
 import Leftaside from "../../navigation/leftaside";
 
 const LoginPage = () => {
@@ -51,6 +52,7 @@ const LoginPage = () => {
                 </div>
             </div>
         </main>
+        <Footer />
     </div>
     );
 };
