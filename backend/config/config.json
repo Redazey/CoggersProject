@@ -4,5 +4,19 @@
     "cache": {
         "EXTime": 16,
         "updateTime": "15"
-    }
+    },
+    "servers": [
+        {
+           "name": "hypixel",
+           "ip": "mc.hypixel.net"
+        },
+        {
+           "name": "LuckyWorld",
+           "ip": "mclucky.net"
+        },
+        {
+           "name": "ETERNITY",
+           "ip": "ETTY.SU"
+        }
+    ]
 }

@@ -11,15 +11,20 @@ type Cache struct {
 	UpdateInterval string `json:"updateTime"`
 }
 
+type Servers struct {
+	Name string `json:"name"`
+	IP   string `json:"ip"`
+}
+
 type Config struct {
 	EnvPath    string `json:"envPath"`
 	LoggerMode string `json:"loggerMode"`
 	Cache      Cache
+	Servers    []Servers `json:"servers"`
 }
 
 var config Config
 
-// не забудьте указать свой путь к файлу config.json
 func Init() {
 	configFile, err := os.ReadFile("C:/CoggersProject/backend/config/config.json")
 	if err != nil {

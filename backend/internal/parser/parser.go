@@ -17,7 +17,7 @@ func New() *Service {
 
 // Сюда передаем адрес сервера в формате string "mc.hypixel.net:25565"
 func parseServerInfo(serverAddress string) (string, error) {
-	conn, err := net.Dial("udp", "mc.hypixel.net:25565")
+	conn, err := net.Dial("udp", serverAddress)
 	if err != nil {
 		logger.Error("произошла ошибка при подключении к серверу: ", zap.Error(err))
 		return "", err
@@ -42,17 +42,17 @@ func parseServerInfo(serverAddress string) (string, error) {
 	return serverInfo, nil
 }
 
-func (s *Service) getOnlineInfo(servers []string) (map[string]string, error) {
+func (s *Service) GetOnlineInfo(servers map[string]string) (map[string]string, error) {
 	// serversInfoMap := make(map[string]string)
 
-	for i := range servers {
-		serverInfo, err := parseServerInfo(servers[i])
+	for key, value := range servers {
+		serverInfo, err := parseServerInfo(value)
 		if err != nil {
-			logStr := fmt.Sprintf("не удалось получить данные о сервере %s, ошибка: ", servers[i])
+			logStr := fmt.Sprintf("не удалось получить данные о сервере %s, ошибка: ", key)
 			logger.Error(logStr, zap.Error(err))
 		}
 
-		fmt.Printf("Данные, которые были получены %s", serverInfo)
+		fmt.Printf("Данные, которые были получены с сервера: %s - %s", key, serverInfo)
 	}
 
 	return nil, nil
