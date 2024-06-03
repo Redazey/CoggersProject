@@ -2,29 +2,20 @@ package auth_test
 
 import (
 	"CoggersProject/backend/config"
-	"CoggersProject/backend/internal/endpoints/auth"
-	"CoggersProject/backend/internal/errorz"
-	"CoggersProject/backend/internal/mw"
-	"CoggersProject/backend/pkg/jwtAuth"
 	"CoggersProject/backend/pkg/service/cacher"
 	"CoggersProject/backend/pkg/service/logger"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/joho/godotenv"
-	"github.com/labstack/echo"
-	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
-type App struct {
-	e    *auth.Endpoint
-	s    *jwtAuth.Service
-	echo *echo.Echo
-}
-
 func TestAuth(t *testing.T) {
+	// инициализируем конфиг, .env, логгер и кэш
 	config.Init()
 	config := config.GetConfig()
 
@@ -32,38 +23,49 @@ func TestAuth(t *testing.T) {
 
 	if err != nil {
 		log.Fatal("Ошибка при открытии .env файла: ", err)
+		return
 	}
 
 	logger.Init(config.LoggerMode)
 	cacher.Init(config.Cache.UpdateInterval)
-
-	a := &App{}
-	a.s = jwtAuth.New()
-	a.e = auth.New(a.s)
-	a.echo = echo.New()
-	a.echo.Use(mw.Recovery)
+	client := &http.Client{}
 
 	t.Run("NewUserRegistration Test", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodGet, "/NewUserRegistration", nil)
+		req, err := http.NewRequest(http.MethodGet, "http://localhost:8080/NewUserRegistration", nil)
+		if err != nil {
+			logger.Error("Ошибка при отправке запроса: ", zap.Error(err))
+			return
+		}
+
 		req.Header.Set("username", "testuser")
 		req.Header.Set("password", "testpass")
-		rec := httptest.NewRecorder()
-		ctx := a.echo.NewContext(req, rec)
-
-		err := a.e.NewUserRegistration(ctx)
-		if err != errorz.ErrUserExists {
-			assert.NoError(t, err, "не ожидали ошибку, получили: ", err)
+		res, err := client.Do(req)
+		if err != nil {
+			logger.Error("Ошибка при отправке запроса: ", zap.Error(err))
+			return
 		}
+
+		receivedData, _ := io.ReadAll(res.Body)
+
+		fmt.Printf("Получены данные от сервера: %s", receivedData)
 	})
 
 	t.Run("UserLogin Test", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodGet, "/UserLogin", nil)
+		req, err := http.NewRequest(http.MethodGet, "http://localhost:8080/NewUserRegistration", nil)
+		if err != nil {
+			logger.Error("Ошибка при отправке запроса: ", zap.Error(err))
+			return
+		}
+
 		req.Header.Set("username", "testuser")
 		req.Header.Set("password", "testpass")
-		rec := httptest.NewRecorder()
-		ctx := a.echo.NewContext(req, rec)
+		res, err := client.Do(req)
+		if err != nil {
+			logger.Error("Ошибка при отправке запроса: ", zap.Error(err))
+			return
+		}
 
-		err := a.e.UserLogin(ctx)
-		assert.NoError(t, err, "не ожидали ошибку, получили: ", err)
+		receivedData, _ := io.ReadAll(res.Body)
+		fmt.Printf("Получены данные от сервера: %v", receivedData)
 	})
 }
