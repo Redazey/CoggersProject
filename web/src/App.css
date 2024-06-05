@@ -1,42 +1,91 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.Content a {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Настройка общего контейнера */
+main {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #1B1B1B;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.top-content {
+    background-image: url('./imgs/bg.jpg');
+    background-size: cover;
+    background-position: center;
+
+    padding-top: 100px;
+    display: flex;  
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* шестеренка */
+.top-content img {
+    height: 400px;
+    margin-bottom: -200px;
+    z-index: 0;
 }
 
-.card {
-  padding: 2em;
+.mid-content {
+    z-index: 1;
+    display: flex;
+    justify-content: center;
 }
 
-.read-the-docs {
-  color: #888;
+/* блок новостей */
+.news-container {
+    justify-self: center;
+    height: 100%;
+    background-color: #2B2B2B;
+
+    z-index: 1;
+    padding: 50px;
+    border-top-left-radius: 50px;
+    border-top-right-radius: 50px;
+}
+
+.news-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 100px;
+}
+
+.news-item .news-text {
+    color: white;
+    display: flex;
+    flex-direction: column;
+    height: 250px;
+    margin-right: 40px;
+}
+
+.news-item img {
+    display: block;
+    border-radius: 50px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Стили для маленьких экранов (например, ширина < 1050px) */
+@media screen and (max-width: 1050px) {
+    .news-container {
+        width: 100%;
+        border-radius: 0px;
+    }
+    .news-item {
+        flex-direction: column;
+    }
+}
+
+/* Стили для больших экранов (например, ширина >= 1050px) */
+@media screen and (min-width: 1050px) {
+    .news-container {
+        width: 70%;
+    }
 }
