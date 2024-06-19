@@ -1,8 +1,8 @@
 {
-    "envPath": "C:/CoggersProject/.env",
+    "GRPC_TIMEOUT": "10h",
     "loggerMode": "debug",
     "cache": {
-        "EXTime": 16,
+        "EXTime":"15m",
         "updateTime": "15"
     },
     "servers": [

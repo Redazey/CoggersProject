@@ -1,61 +1,57 @@
 package app
 
 import (
-	"CoggersProject/backend/config"
-	"CoggersProject/backend/internal/endpoints/auth"
-	serverinfo "CoggersProject/backend/internal/endpoints/serverInfo"
-	"CoggersProject/backend/internal/mw"
-	"CoggersProject/backend/internal/servParser"
-	"CoggersProject/backend/pkg/db"
-	"CoggersProject/backend/pkg/jwtAuth"
-	"CoggersProject/backend/pkg/service/cacher"
-	"CoggersProject/backend/pkg/service/logger"
+	"CoggersProject/config"
+	pbAuth "CoggersProject/gen/go/auth"
+	"CoggersProject/internal/app/endpoint/grpcAuth"
+	"CoggersProject/internal/app/lib/cacher"
+	"CoggersProject/internal/app/service/auth"
+	"CoggersProject/pkg/cache"
+	"CoggersProject/pkg/db"
+	"CoggersProject/pkg/logger"
 	"log"
+	"net"
 
-	"github.com/joho/godotenv"
-	"github.com/labstack/echo"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 )
 
 type App struct {
-	auth       *auth.Endpoint
-	serverinfo *serverinfo.Endpoint
-	jwt        *jwtAuth.Service
-	servParser *servParser.Service
-	echo       *echo.Echo
+	auth *auth.Service
+
+	server *grpc.Server
 }
 
 func New() (*App, error) {
+	// инициализируем конфиг, логгер и кэш
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.Fatalf("Ошибка при попытке спарсить .env файл в структуру: %v", err)
+	}
+
+	logger.Init(cfg.LoggerLevel)
+	cacher.Init(cfg.Cache.UpdateInterval)
+
 	a := &App{}
 
-	a.jwt = jwtAuth.New()
-	a.servParser = servParser.New()
+	a.server = grpc.NewServer()
 
-	a.auth = auth.New(a.jwt)
-	a.serverinfo = serverinfo.New(a.servParser)
+	// обьявляем сервисы
+	a.auth = auth.New(cfg)
 
-	// инициализируем конфиг, .env, логгер и кэш
-	config.Init()
-	config := config.GetConfig()
+	// регистрируем эндпоинты
+	serviceAuth := &grpcAuth.Endpoint{
+		Auth: a.auth,
+	}
+	pbAuth.RegisterAuthServiceServer(a.server, serviceAuth)
 
-	err := godotenv.Load(config.EnvPath)
-
+	err = cache.Init(cfg.Redis.RedisAddr+":"+cfg.Redis.RedisPort, cfg.Redis.RedisUsername, cfg.Redis.RedisPassword, cfg.Redis.RedisDBId, cfg.Cache.EXTime)
 	if err != nil {
-		log.Fatal("Ошибка при открытии .env файла: ", err)
+		logger.Error("ошибка при инициализации кэша: ", zap.Error(err))
 		return nil, err
 	}
 
-	logger.Init(config.LoggerMode)
-	cacher.Init(config.Cache.UpdateInterval)
-
-	a.echo = echo.New()
-	a.echo.Use(mw.Recovery)
-
-	a.echo.GET("/UserLogin", a.auth.UserLogin)
-	a.echo.GET("/NewUserRegistration", a.auth.NewUserRegistration)
-	a.echo.GET("/ServerInfo", a.serverinfo.ServerInfo)
-
-	err = db.InitiateTables()
+	err = db.Init(cfg.DB.DBUser, cfg.DB.DBPassword, cfg.DB.DBHost, cfg.DB.DBName)
 	if err != nil {
 		logger.Fatal("ошибка при инициализации БД: ", zap.Error(err))
 		return nil, err
@@ -65,7 +61,12 @@ func New() (*App, error) {
 }
 
 func (a *App) Run() error {
-	err := a.echo.Start(":8080")
+	lis, err := net.Listen("tcp", "localhost:8080")
+	if err != nil {
+		logger.Fatal("Ошибка при открытии listener: ", zap.Error(err))
+	}
+
+	err = a.server.Serve(lis)
 	if err != nil {
 		logger.Fatal("Ошибка при инициализации сервера: ", zap.Error(err))
 		return err
@@ -74,12 +75,8 @@ func (a *App) Run() error {
 	return nil
 }
 
-func (a *App) Stop() error {
-	err := a.echo.Close()
-	if err != nil {
-		logger.Fatal("Ошибка при инициализации сервера: ", zap.Error(err))
-		return err
-	}
+func (a *App) Stop() {
+	logger.Info("закрытие gRPC сервера")
 
-	return nil
+	a.server.GracefulStop()
 }

@@ -1,186 +1,150 @@
 package cache
 
 import (
-	"CoggersProject/backend/config"
-	"CoggersProject/backend/internal/errorz"
-	"CoggersProject/backend/pkg/service/logger"
 	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
-	"net/http"
-	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"go.uber.org/zap"
 )
 
-var ctx = context.Background()
+var (
+	Ctx         = context.Background()
+	Rdb         *redis.Client
+	CacheEXTime time.Duration
+)
 
-/*
-функция для подготовки мапы к записи в кэш
-columns - поля, по которым будет сгенерирован md5hash
-
-формат входящей мапы:
-
-	map[string]string = {
-		"key1": "value1",
-		"key2": "value2",
-		"key3": "value3",
-	}
-
-формат выходящей мапы:
-
-	map[string]map[string]interface{} = {
-		"md5hash": {
-			"key1": "value1",
-			"key2": "value2",
-			"key3": "value3",
-		},
-	}
-	+ md5hash key
-*/
-func ConvertMap(inputMap http.Header, columns ...string) (map[string]map[string]interface{}, string) {
-	var mainKey string
-
-	hash := md5.Sum([]byte(strings.Join(columns, "")))
-	mainKey = hex.EncodeToString(hash[:])
-
-	outputMap := make(map[string]map[string]interface{})
-	outputMap[mainKey] = make(map[string]interface{})
-
-	for key, value := range inputMap {
-		outputMap[mainKey][key] = value[0]
-	}
-
-	return outputMap, mainKey
-}
-
-func redisConnect() *redis.Client {
-	conn := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
-		DB:       0,
+func Init(Addr string, Username string, Password string, DB int, CacheEx time.Duration) error {
+	Rdb = redis.NewClient(&redis.Options{
+		Addr:     Addr,
+		Username: Username,
+		Password: Password,
+		DB:       DB,
 	})
 
-	err := conn.Ping(ctx).Err()
+	err := Rdb.Ping(Ctx).Err()
 	if err != nil {
-		logger.Fatal("Ошибка при подключении к Redis: ", zap.Error(err))
-	}
-	return conn
-}
-
-/*
-поиск данных в кэше по md5 хэш-ключу
-
-запрашиваем поиск по ключу input, и что должно вернуться по ключу output
-*/
-func IsDataInCache(table string, input string, output string) (interface{}, error) {
-	cacheMap, err := ReadCache(table)
-	if cacheMap[input] != nil && err == nil {
-		return cacheMap[input][output], nil
-	} else if err != nil {
-		return nil, err
-	}
-
-	return nil, nil
-}
-
-/*
-функция для записи данных в кэш, принимает мапы, после конвертации функцией ConvertMap
-
-Вид входящей мапы:
-
-	map[string]map[string]interface{}{
-		"md5hash": {
-			"username": "exampleUser",
-			"password": "examplePass",
-			"roleid":   "exampleRoleid",
-		},
-	}
-*/
-func SaveCache(table string, cacheMap map[string]map[string]interface{}) error {
-	config.Init()
-	config := config.GetConfig()
-
-	conn := redisConnect()
-	defer conn.Close()
-
-	if cacheMap == nil {
-		return errorz.ErrNilCacheData
-	}
-
-	for key, args := range cacheMap {
-		// Устанавливаем значение в хэш-таблицу
-		jsonMap, err := json.Marshal(args)
-		if err != nil {
-			logger.Error("Ошибка при преобразовании кэша в json: ", zap.Error(err))
-			return err
-		}
-
-		err = conn.HSet(ctx, table, key, jsonMap).Err()
-		if err != nil {
-			logger.Error("Ошибка при сохранении кэша в Redis: ", zap.Error(err))
-			return err
-		}
-
-		// Устанавливаем время жизни ключа
-		err = conn.Expire(ctx, key, time.Minute*time.Duration(config.Cache.EXTime)).Err()
-		if err != nil {
-			logger.Error("Ошибка при установки срока жизни кэша: ", zap.Error(err))
-			return err
-		}
-	}
-
-	logger.Info("Кэш успешно сохранён в Redis")
-	// удаляем устаревшие данные
-	err := DeleteEX(table)
-	if err != nil {
-		logger.Error("Ошибка при удалении устаревшего кэша: ", zap.Error(err))
 		return err
 	}
+
+	CacheEXTime = CacheEx
+
+	return nil
+}
+
+/*
+получение хэш ключа по реквесту
+*/
+func GetHashKey(request interface{}) (string, error) {
+	var hashKey string
+
+	reqJSON, err := json.Marshal(request)
+	if err != nil {
+		return hashKey, err
+	}
+
+	hash := md5.Sum(reqJSON)
+	hashKey = hex.EncodeToString(hash[:])
+
+	return hashKey, nil
+}
+
+/*
+функция для проверки существования таблицы в кэше
+
+принимает:
+
+	table - имя таблицы
+
+возвращает:
+
+	bool - true, если таблица существует, иначе false
+	error - ошибка, если возникла
+*/
+func IsExistInCache(hashKey string) (bool, error) {
+	exists, err := Rdb.Exists(Ctx, hashKey).Result()
+	if err != nil {
+		return false, err
+	}
+	return exists > 0, nil
+}
+
+/*
+функция для записи данных в кэш, принимает grpc requests
+*/
+func SaveCache(hashKey string, response interface{}) error {
+	err := Rdb.HSet(Ctx, hashKey, response).Err()
+	if err != nil {
+		return err
+	}
+
+	// Устанавливаем время жизни ключа
+	err = Rdb.Expire(Ctx, hashKey, time.Minute*time.Duration(CacheEXTime)).Err()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 /*
 Функция для чтения значений по хэш-ключу
 
-возвращает map вида:
-
-	map[string]map[string]interface{} = {
-		"md5hash": {
-			"username": "exampleUser",
-			"password": "examplePass",
-			"roleid":   "exampleRoleid",
-		},
-	}
+возвращает grpc response
 */
-func ReadCache(table string) (map[string]map[string]interface{}, error) {
-	conn := redisConnect()
-	defer conn.Close()
-
-	cacheMap := make(map[string]map[string]interface{})
-
-	// Получаем все поля и значения из хэша
-	result, err := conn.HGetAll(ctx, table).Result()
+func ReadCache(hashKey string) (interface{}, error) {
+	response, err := Rdb.Get(Ctx, hashKey).Result()
 	if err != nil {
-		logger.Error("Ошибка при извлечении кэша из Redis: ", zap.Error(err))
 		return nil, err
 	}
 
-	// Преобразуем результат в map[string]interface{}
-	for key, value := range result {
-		var tempMap map[string]interface{}
-		err := json.Unmarshal([]byte(value), &tempMap)
+	return response, nil
+}
+
+/*
+Функция для удаления значений по хэш-ключу
+*/
+func DeleteCache(hashKey string) error {
+	// Удаляем хэш целиком
+	err := Rdb.Del(Ctx, hashKey).Err()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+/*
+Функция для удаления значений по шаблону
+
+пример pattern: news_category_*, где * - любое подстановочное значение
+*/
+func DeleteCacheByPattern(pattern string) error {
+	var cursor uint64
+	for {
+		// Ищем ключи по шаблону
+		keys, nextCursor, err := Rdb.Scan(Ctx, cursor, pattern, 10).Result()
 		if err != nil {
-			logger.Error("Ошибка при декодировании кэша из JSON: ", zap.Error(err))
-			return nil, err
+			return err
 		}
-		cacheMap[key] = tempMap
+
+		// Удаляем найденные ключи
+		if len(keys) > 0 {
+			err = Rdb.Del(Ctx, keys...).Err()
+			if err != nil {
+				return err
+			}
+		}
+
+		// Обновляем курсор
+		cursor = nextCursor
+		if cursor == 0 {
+			break
+		}
 	}
 
-	return cacheMap, nil
+	return nil
 }
 
 /*
@@ -188,32 +152,26 @@ func ReadCache(table string) (map[string]map[string]interface{}, error) {
 
 автоматически применяется при сохранении кэша при помощи функции SaveCache
 */
-func DeleteEX(table string) error {
-	conn := redisConnect()
-	defer conn.Close()
-
-	keys, err := conn.HKeys(ctx, table).Result()
+func DeleteEX(hashKey string) error {
+	keys, err := Rdb.HKeys(Ctx, hashKey).Result()
 	if err != nil {
-		logger.Error("ошибка при получении ключей из Redis: ", zap.Error(err))
 		return err
 	}
 
 	// удаляем все протухшие ключи из Redis
 	for _, key := range keys {
 		// Получаем время до истечения срока действия ключа
-		ttl := conn.TTL(ctx, key).Val()
+		ttl := Rdb.TTL(Ctx, key).Val()
 
 		if ttl <= 0 {
 			// Если TTL < 0, значит ключ уже истек и можно его удалить
-			err := conn.Del(ctx, key).Err()
+			err := Rdb.Del(Ctx, key).Err()
 			if err != nil {
-				logger.Error("Ошибка при удалении протухших значений из Redis: ", zap.Error(err))
 				return err
 			}
 		}
 	}
 
-	logger.Info("Протухшие ключи удалены из кэша")
 	return nil
 }
 
@@ -222,16 +180,11 @@ func DeleteEX(table string) error {
 
 нужна в основном для дэбага
 */
-func ClearCache() {
-	conn := redisConnect()
-	defer conn.Close()
-
+func ClearCache(Rdb *redis.Client) error {
 	// Удаление всего кэша из Redis
-	err := conn.FlushAll(ctx).Err()
+	err := Rdb.FlushAll(Ctx).Err()
 	if err != nil {
-		logger.Error("Ошибка при удалении кэша из Redis:", zap.Error(err))
-		return
+		return err
 	}
-
-	logger.Info("Протухшие ключи удалены из кэша")
+	return nil
 }
