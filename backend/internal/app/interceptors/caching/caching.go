@@ -9,6 +9,22 @@ import (
 	"google.golang.org/grpc"
 )
 
+func UnaryServerInterceptor(opts ...Option) grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+		var newCtx context.Context
+		var err error
+		if overrideSrv, ok := info.Server.(ServiceAuthFuncOverride); ok {
+			newCtx, err = overrideSrv.AuthFuncOverride(ctx, info.FullMethod)
+		} else {
+			newCtx, err = authFunc(ctx)
+		}
+		if err != nil {
+			return nil, err
+		}
+		return handler(newCtx, req)
+	}
+}
+
 func CacheMiddleware(next grpc.UnaryHandler) grpc.UnaryHandler {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		hashKey, err := cache.GetHashKey(req)

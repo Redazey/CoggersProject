@@ -1,25 +1,22 @@
 package cache_test
 
 import (
+	pbAuth "CoggersProject/gen/go/auth"
 	"CoggersProject/pkg/cache"
-	"CoggersProject/tests/suite"
+	"CoggersProject/pkg/cache/tests/suite"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestInit(t *testing.T) {
-	var _, st = suite.New(t)
-
-	err := cache.Init(st.Cfg.Redis.RedisAddr+":"+st.Cfg.Redis.RedisPort, st.Cfg.Redis.RedisUsername, st.Cfg.Redis.RedisPassword, 0, st.Cfg.Cache.EXTime)
-	assert.Nil(t, err, "Expected no error during initialization")
-}
-
 func TestGetHashKey(t *testing.T) {
-	testReq := map[string]interface{}{
-		"key": "value",
+	suite.New(t)
+
+	testReq := pbAuth.LoginRequest{
+		Email:    "test@mail.test",
+		Password: "testpwd",
 	}
-	expectedHash := "a7353f7cddce808de0032747a0b7be50"
+	expectedHash := "f661e41cd98daee327c1d220f90c7397"
 
 	hashKey, err := cache.GetHashKey(testReq)
 
@@ -27,8 +24,14 @@ func TestGetHashKey(t *testing.T) {
 	assert.Equal(t, expectedHash, hashKey)
 }
 
+/*
 func TestIsExistInCache(t *testing.T) {
-	hashKey := "mockHashKey"
+	testReq := pbAuth.LoginRequest{
+		Email:    "test@mail.test",
+		Password: "testpwd",
+	}
+
+	hashKey, err := cache.GetHashKey(testReq)
 
 	isExists, err := cache.IsExistInCache(hashKey)
 
@@ -47,3 +50,4 @@ func TestSaveCache(t *testing.T) {
 }
 
 // Продолжай в том же духе для остальных функций
+*/

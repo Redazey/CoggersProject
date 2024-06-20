@@ -1,9 +1,7 @@
 package config
 
 import (
-	"encoding/json"
 	"log"
-	"os"
 	"time"
 
 	"github.com/caarlos0/env"
@@ -11,9 +9,8 @@ import (
 )
 
 type Configuration struct {
-	LoggerLevel string        `json:"loggerMode" jsonDefault:"debug"`
-	GRPCTimeout time.Duration `json:"GRPC_TIMEOUT" jsonDefault:"10h"`
-	Servers     []Servers     `json:"servers"`
+	LoggerLevel string        `env:"loggerMode" envDefault:"debug"`
+	GRPCTimeout time.Duration `env:"GRPC_TIMEOUT" envDefault:"10h"`
 	JwtSecret   string        `env:"JWT_SECRET,required"`
 	DB          DB
 	Redis       Redis
@@ -30,19 +27,13 @@ type DB struct {
 type Redis struct {
 	RedisAddr     string `env:"REDIS_ADDR,required"`
 	RedisPort     string `env:"REDIS_PORT" envDefault:"6379"`
-	RedisUsername string `env:"REDIS_USERNAME,required"`
 	RedisPassword string `env:"REDIS_PASSWORD,required"`
 	RedisDBId     int    `env:"REDIS_DB_ID,required"`
 }
 
 type Cache struct {
-	EXTime         time.Duration `json:"EXTime" jsonDefault:"15m"`
-	UpdateInterval string        `json:"updateTime" jsonDefault:"15"`
-}
-
-type Servers struct {
-	Name string `json:"name"`
-	IP   string `json:"ip"`
+	EXTime         time.Duration `env:"EXTime" envDefault:"15m"`
+	UpdateInterval string        `env:"updateTime" envDefault:"15"`
 }
 
 var config Configuration
@@ -74,33 +65,20 @@ func NewConfig(files ...string) (*Configuration, error) {
 		log.Fatalf("Файл .env не найден: %s", err)
 	}
 
-	configFile, err := os.ReadFile("./config/config.json")
-	if err != nil {
-		log.Fatal("Ошибка при попытке прочитать файл конфигурации: ", err)
-		return nil, err
-	}
-
-	err = json.Unmarshal(configFile, &config)
-	if err != nil {
-		log.Fatal("Ошибка при распаковывании файла конфигурации: ", err)
-		return nil, err
-	}
-
-	cfg := Configuration{}
-	err = env.Parse(&cfg)
+	err = env.Parse(&config)
 	if err != nil {
 		return nil, err
 	}
-	err = env.Parse(&cfg.Redis)
+	err = env.Parse(&config.Redis)
 	if err != nil {
 		return nil, err
 	}
-	err = env.Parse(&cfg.DB)
+	err = env.Parse(&config.DB)
 	if err != nil {
 		return nil, err
 	}
 
-	return &cfg, nil
+	return &config, nil
 }
 
 func GetConfig() *Configuration {

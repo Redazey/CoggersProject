@@ -21,7 +21,7 @@ type Endpoint struct {
 	pb.UnimplementedAuthServiceServer
 }
 
-func (e *Endpoint) Login(_ context.Context, req *pb.LoginRequest) (*pb.AuthResponse, error) {
+func (e *Endpoint) Login(ctx context.Context, req *pb.LoginRequest) (*pb.AuthResponse, error) {
 	if req.Email == "" {
 		return nil, status.Error(codes.InvalidArgument, "username пустое значение")
 	}
@@ -42,7 +42,7 @@ func (e *Endpoint) Login(_ context.Context, req *pb.LoginRequest) (*pb.AuthRespo
 	return &pb.AuthResponse{Key: token}, nil
 }
 
-func (e *Endpoint) Registration(_ context.Context, req *pb.RegistrationRequest) (*pb.AuthResponse, error) {
+func (e *Endpoint) Registration(ctx context.Context, req *pb.RegistrationRequest) (*pb.AuthResponse, error) {
 	if req.Email == "" {
 		return nil, status.Error(codes.InvalidArgument, "username пустое значение")
 	}
@@ -63,7 +63,7 @@ func (e *Endpoint) Registration(_ context.Context, req *pb.RegistrationRequest) 
 	return &pb.AuthResponse{Key: token}, nil
 }
 
-func (e *Endpoint) IsAdmin(_ context.Context, req *pb.IsAdminRequest) (*pb.IsAdminResponse, error) {
+func (e *Endpoint) IsAdmin(ctx context.Context, req *pb.IsAdminRequest) (*pb.IsAdminResponse, error) {
 	if req.JwtToken == "" {
 		return nil, status.Error(codes.InvalidArgument, "jwtToken пустое значение")
 	}

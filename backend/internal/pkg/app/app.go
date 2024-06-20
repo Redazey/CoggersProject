@@ -1,8 +1,8 @@
 package app
 
 import (
-	"CoggersProject/config"
 	pbAuth "CoggersProject/gen/go/auth"
+	"CoggersProject/internal/app/config"
 	"CoggersProject/internal/app/endpoint/grpcAuth"
 	"CoggersProject/internal/app/lib/cacher"
 	"CoggersProject/internal/app/service/auth"
@@ -45,7 +45,7 @@ func New() (*App, error) {
 	}
 	pbAuth.RegisterAuthServiceServer(a.server, serviceAuth)
 
-	err = cache.Init(cfg.Redis.RedisAddr+":"+cfg.Redis.RedisPort, cfg.Redis.RedisUsername, cfg.Redis.RedisPassword, cfg.Redis.RedisDBId, cfg.Cache.EXTime)
+	err = cache.Init(cfg.Redis.RedisAddr+":"+cfg.Redis.RedisPort, cfg.Redis.RedisPassword, cfg.Redis.RedisDBId, cfg.Cache.EXTime)
 	if err != nil {
 		logger.Error("ошибка при инициализации кэша: ", zap.Error(err))
 		return nil, err

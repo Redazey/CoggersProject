@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"CoggersProject/config"
+	"CoggersProject/internal/app/config"
 	"CoggersProject/internal/app/errorz"
 	"CoggersProject/internal/app/lib/db"
 	"CoggersProject/internal/app/lib/jwt"

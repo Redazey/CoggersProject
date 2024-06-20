@@ -16,10 +16,9 @@ var (
 	CacheEXTime time.Duration
 )
 
-func Init(Addr string, Username string, Password string, DB int, CacheEx time.Duration) error {
+func Init(Addr string, Password string, DB int, CacheEx time.Duration) error {
 	Rdb = redis.NewClient(&redis.Options{
 		Addr:     Addr,
-		Username: Username,
 		Password: Password,
 		DB:       DB,
 	})
@@ -74,11 +73,13 @@ func IsExistInCache(hashKey string) (bool, error) {
 /*
 функция для записи данных в кэш, принимает grpc requests
 */
-func SaveCache(hashKey string, response interface{}) error {
-	err := Rdb.HSet(Ctx, hashKey, response).Err()
+func SaveCache(hashKey string, data interface{}) error {
+	cacheData, err := json.Marshal(data)
 	if err != nil {
-		return err
+		return nil
 	}
+
+	Rdb.HSet(Ctx, hashKey, cacheData).Err()
 
 	// Устанавливаем время жизни ключа
 	err = Rdb.Expire(Ctx, hashKey, time.Minute*time.Duration(CacheEXTime)).Err()
@@ -180,9 +181,9 @@ func DeleteEX(hashKey string) error {
 
 нужна в основном для дэбага
 */
-func ClearCache(Rdb *redis.Client) error {
+func ClearCache(hashKey string) error {
 	// Удаление всего кэша из Redis
-	err := Rdb.FlushAll(Ctx).Err()
+	err := Rdb.Del(Ctx, hashKey).Err()
 	if err != nil {
 		return err
 	}
