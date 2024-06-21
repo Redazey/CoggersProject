@@ -36,10 +36,10 @@ func Init(Addr string, Password string, DB int, CacheEx time.Duration) error {
 /*
 получение хэш ключа по реквесту
 */
-func GetHashKey(request interface{}) (string, error) {
+func GetHashKey(data interface{}) (string, error) {
 	var hashKey string
 
-	reqJSON, err := json.Marshal(request)
+	reqJSON, err := json.Marshal(data)
 	if err != nil {
 		return hashKey, err
 	}

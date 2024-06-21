@@ -27,13 +27,23 @@ func (s *Service) UserLogin(email string, password string) (string, error) {
 		"email":    email,
 		"password": password,
 	}
-	userData, hashKey := cache.ConvertMap(msg, "email", "password")
+	hashKey, err := cache.GetHashKey(msg)
+	if err != nil {
+		logger.Error("ошибка при генерации хэш-ключа: ", zap.Error(err))
+		return "", err
+	}
 
-	cachePwd, err := cache.IsDataInCache("users", hashKey, "password")
+	userData, err := cache.ReadCache(hashKey)
 	if err != nil {
 		logger.Error("ошибка при поиске данных в кэше Redis: ", zap.Error(err))
 		return "", err
 	}
+
+	userDataMap, ok := userData.(map[string]string)
+	if !ok {
+		return "", errorz.ErrTypeConversion
+	}
+	cachePwd := userDataMap["password"]
 
 	if cachePwd != "" && cachePwd != password {
 		return "", errorz.ErrUserNotFound
@@ -45,18 +55,18 @@ func (s *Service) UserLogin(email string, password string) (string, error) {
 		if dbMap != nil && dbMap["password"] != password {
 			return "", err
 		}
+
+		// сохраняем залогиненого юзера в кэш
+		err = cache.SaveCache(hashKey, dbMap)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	// генерируем jwt токен и данных юзера для использования в дальнейшем
 	key, err := jwt.Keygen(email, password, s.Cfg.JwtSecret)
 	if err != nil {
 		logger.Error("ошибка при генерации токена: ", zap.Error(err))
-		return "", err
-	}
-
-	// сохраняем залогиненого юзера в кэш
-	err = cache.SaveCache("users", userData)
-	if err != nil {
 		return "", err
 	}
 
@@ -69,26 +79,26 @@ func (s *Service) NewUserRegistration(email string, password string) (string, er
 		"email":    email,
 		"password": password,
 	}
-	userData, hashKey := cache.ConvertMap(msg, "email", "password")
-
-	cachePwd, err := cache.IsDataInCache("users", hashKey, "password")
+	hashKey, err := cache.GetHashKey(msg)
 	if err != nil {
+		logger.Error("ошибка при генерации хэш-ключа: ", zap.Error(err))
 		return "", err
 	}
 
-	// если пароль у юзера есть, значит и юзер существует
-	if cachePwd == "" {
-		dbMap, err := db.FetchUserData(email)
-		if err != sql.ErrNoRows && err != nil {
-			return "", err
-		}
-
-		if len(dbMap) != 0 {
-			return "", errorz.ErrUserExists
-		}
+	exists, err := cache.IsExistInCache(hashKey)
+	if err != nil {
+		logger.Error("ошибка при поиске значения в кэше: ", zap.Error(err))
+		return "", err
+	}
+	if exists {
+		return "", errorz.ErrUserExists
 	}
 
-	err = cache.SaveCache("users", userData)
+	dbMap, err := db.FetchUserData(email)
+	if err != sql.ErrNoRows && err != nil {
+		return "", err
+	}
+	err = cache.SaveCache(hashKey, dbMap)
 	if err != nil {
 		logger.Error("ошибка при регистрации пользователя: ", zap.Error(err))
 		return "", err
@@ -104,20 +114,32 @@ func (s *Service) NewUserRegistration(email string, password string) (string, er
 }
 
 func (s *Service) IsAdmin(tokenString string) (bool, error) {
-	UserData, err := jwt.UserDataFromJwt(tokenString, s.Cfg.JwtSecret)
+	userData, err := jwt.UserDataFromJwt(tokenString, s.Cfg.JwtSecret)
 	if err != nil {
+		logger.Error("ошибка при распаковки jwt-токена: ", zap.Error(err))
 		return false, err
 	}
 
-	_, hashKey := cache.ConvertMap(UserData, "email", "password")
-
-	roleId, err := cache.IsDataInCache("users", hashKey, "roleId")
+	hashKey, err := cache.GetHashKey(userData)
 	if err != nil {
+		logger.Error("ошибка при генерации хэш-ключа: ", zap.Error(err))
 		return false, err
 	}
 
-	if roleId.(int) != 0 {
-		if roleId == 1 {
+	cacheUserData, err := cache.ReadCache(hashKey)
+	if err != nil {
+		logger.Error("ошибка при поиске данных в кэше Redis: ", zap.Error(err))
+		return false, err
+	}
+
+	userDataMap, ok := cacheUserData.(map[string]string)
+	if !ok {
+		return false, errorz.ErrTypeConversion
+	}
+	roleId := userDataMap["roleId"]
+
+	if roleId != "" {
+		if roleId == "1" {
 			return true, nil
 		} else {
 			return false, nil

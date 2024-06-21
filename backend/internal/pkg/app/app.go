@@ -1,9 +1,9 @@
 package app
 
 import (
-	pbAuth "CoggersProject/gen/go/auth"
 	"CoggersProject/internal/app/config"
 	"CoggersProject/internal/app/endpoint/grpcAuth"
+	"CoggersProject/internal/app/interceptors/caching"
 	"CoggersProject/internal/app/lib/cacher"
 	"CoggersProject/internal/app/service/auth"
 	"CoggersProject/pkg/cache"
@@ -34,8 +34,6 @@ func New() (*App, error) {
 
 	a := &App{}
 
-	a.server = grpc.NewServer()
-
 	// обьявляем сервисы
 	a.auth = auth.New(cfg)
 
@@ -43,7 +41,16 @@ func New() (*App, error) {
 	serviceAuth := &grpcAuth.Endpoint{
 		Auth: a.auth,
 	}
-	pbAuth.RegisterAuthServiceServer(a.server, serviceAuth)
+
+	opts := []caching.Option{
+		caching.WithCacheHandler(serviceAuth),
+	}
+
+	a.server = grpc.NewServer(
+		grpc.UnaryInterceptor(
+			caching.UnaryServerInterceptor(opts...),
+		),
+	)
 
 	err = cache.Init(cfg.Redis.RedisAddr+":"+cfg.Redis.RedisPort, cfg.Redis.RedisPassword, cfg.Redis.RedisDBId, cfg.Cache.EXTime)
 	if err != nil {

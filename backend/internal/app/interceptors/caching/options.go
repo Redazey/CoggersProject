@@ -4,12 +4,12 @@ import "context"
 
 var (
 	defaultOptions = &options{
-		recoveryHandlerFunc: nil,
+		cacheHandlerFunc: nil,
 	}
 )
 
 type options struct {
-	recoveryHandlerFunc RecoveryHandlerFuncContext
+	cacheHandlerFunc CacheHandlerFuncContext
 }
 
 func evaluateOptions(opts []Option) *options {
@@ -23,18 +23,16 @@ func evaluateOptions(opts []Option) *options {
 
 type Option func(*options)
 
-// WithRecoveryHandler customizes the function for recovering from a panic.
-func WithRecoveryHandler(f RecoveryHandlerFunc) Option {
+func WithCacheHandler(f CacheHandlerFunc) Option {
 	return func(o *options) {
-		o.recoveryHandlerFunc = RecoveryHandlerFuncContext(func(ctx context.Context, p any) error {
-			return f(p)
+		o.cacheHandlerFunc = CacheHandlerFuncContext(func(ctx context.Context, req interface{}) (res interface{}, err error) {
+			return f(req)
 		})
 	}
 }
 
-// WithRecoveryHandlerContext customizes the function for recovering from a panic.
-func WithRecoveryHandlerContext(f RecoveryHandlerFuncContext) Option {
+func WithCacheHandlerContext(f CacheHandlerFuncContext) Option {
 	return func(o *options) {
-		o.recoveryHandlerFunc = f
+		o.cacheHandlerFunc = f
 	}
 }

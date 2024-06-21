@@ -9,19 +9,36 @@ import (
 	"google.golang.org/grpc"
 )
 
+type CacheHandlerFunc func(req interface{}) (res interface{}, err error)
+
+// RecoveryHandlerFuncContext is a function that recovers from the panic `p` by returning an `error`.
+// The context can be used to extract request scoped metadata and context values.
+type CacheHandlerFuncContext func(ctx context.Context, req interface{}) (res interface{}, err error)
+
 func UnaryServerInterceptor(opts ...Option) grpc.UnaryServerInterceptor {
+	o := evaluateOptions(opts)
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-		var newCtx context.Context
-		var err error
-		if overrideSrv, ok := info.Server.(ServiceAuthFuncOverride); ok {
-			newCtx, err = overrideSrv.AuthFuncOverride(ctx, info.FullMethod)
-		} else {
-			newCtx, err = authFunc(ctx)
-		}
+		hashKey, err := cache.GetHashKey(req)
 		if err != nil {
-			return nil, err
+			logger.Error("возникла ошибка при получении хэш-ключа", zap.Error(err))
 		}
-		return handler(newCtx, req)
+
+		response, err := cache.ReadCache(hashKey)
+		if err != nil {
+			logger.Error("ошибка при получении значения из кэша", zap.Error(err))
+		}
+
+		if response != nil {
+			return response, nil // Возвращаем результат из кэша, если он есть
+		}
+
+		// Если в кэше нет значения, вызываем сам эндпоинт
+		res, err := o.cacheHandlerFunc(ctx, req)
+		if err == nil {
+			cache.SaveCache(hashKey, res) // Сохраняем результат в кэше
+		}
+
+		return res, err
 	}
 }
 
