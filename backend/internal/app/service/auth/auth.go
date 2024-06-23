@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"CoggersProject/internal/app/config"
+	"CoggersProject/config"
 	"CoggersProject/internal/app/errorz"
 	"CoggersProject/internal/app/lib/db"
 	"CoggersProject/internal/app/lib/jwt"
@@ -27,37 +27,38 @@ func (s *Service) UserLogin(email string, password string) (string, error) {
 		"email":    email,
 		"password": password,
 	}
+
 	hashKey, err := cache.GetHashKey(msg)
 	if err != nil {
 		logger.Error("ошибка при генерации хэш-ключа: ", zap.Error(err))
 		return "", err
 	}
 
-	userData, err := cache.ReadCache(hashKey)
+	cacheData, err := cache.ReadCache(hashKey)
 	if err != nil {
 		logger.Error("ошибка при поиске данных в кэше Redis: ", zap.Error(err))
 		return "", err
 	}
 
-	userDataMap, ok := userData.(map[string]string)
+	cachePwd, ok := cacheData.(map[string]string)["password"]
 	if !ok {
 		return "", errorz.ErrTypeConversion
 	}
-	cachePwd := userDataMap["password"]
 
 	if cachePwd != "" && cachePwd != password {
 		return "", errorz.ErrUserNotFound
 	} else if cachePwd == "" {
-		dbMap, err := db.FetchUserData(email)
+		dbData, err := db.FetchUserData(email)
 		if err != nil {
 			return "", err
 		}
-		if dbMap != nil && dbMap["password"] != password {
+
+		if dbData.Password != password {
 			return "", err
 		}
 
 		// сохраняем залогиненого юзера в кэш
-		err = cache.SaveCache(hashKey, dbMap)
+		err = cache.SaveCache(hashKey, dbData)
 		if err != nil {
 			return "", err
 		}
@@ -79,6 +80,7 @@ func (s *Service) NewUserRegistration(email string, password string) (string, er
 		"email":    email,
 		"password": password,
 	}
+
 	hashKey, err := cache.GetHashKey(msg)
 	if err != nil {
 		logger.Error("ошибка при генерации хэш-ключа: ", zap.Error(err))
@@ -90,6 +92,7 @@ func (s *Service) NewUserRegistration(email string, password string) (string, er
 		logger.Error("ошибка при поиске значения в кэше: ", zap.Error(err))
 		return "", err
 	}
+
 	if exists {
 		return "", errorz.ErrUserExists
 	}
@@ -98,6 +101,7 @@ func (s *Service) NewUserRegistration(email string, password string) (string, er
 	if err != sql.ErrNoRows && err != nil {
 		return "", err
 	}
+
 	err = cache.SaveCache(hashKey, dbMap)
 	if err != nil {
 		logger.Error("ошибка при регистрации пользователя: ", zap.Error(err))

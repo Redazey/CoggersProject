@@ -2,51 +2,45 @@ package db
 
 import (
 	"CoggersProject/pkg/db"
-	"fmt"
 )
 
-// принимает таблицу как string и возвращает таблицу в виде map
-func FetchUserData(email string) (map[string]string, error) {
-	rows, err := db.Conn.Query(`SELECT email, password, roleid 
-						   FROM users
-						   WHERE email = $1`, email)
+type UserData struct {
+	Id        int
+	Name      string
+	Email     string
+	Password  string
+	RoleId    int
+	Birthdate string
+	Photourl  string
+	Push      bool
+}
+
+/*
+принимает таблицу как string и возвращает данные о пользователе в виде структуры
+
+	name      string
+	email     string
+	password  string
+	roleId    int
+	birthdate string
+	photourl  string
+	push      bool
+*/
+func FetchUserData(email string) (UserData, error) {
+	rows, err := db.Conn.Query(`SELECT * FROM users
+						   		WHERE email = $1`, email)
 	if err != nil {
-		return nil, err
+		return UserData{}, err
 	}
 
 	defer rows.Close()
 
-	// Получение информации о столбцах
-	columns, err := rows.Columns()
-	if err != nil {
-		return nil, err
-	}
-
-	// Инициализация именованного массива, который содержит структуру для сканирования
-	values := make([]interface{}, len(columns))
-	for i := range columns {
-		values[i] = new(interface{})
-	}
-
-	// Инициализация мапы для хранения данных
-	dataMap := make(map[string]string)
-
 	// Чтение данных из таблицы и добавление их в map
-	for rows.Next() {
-		err := rows.Scan(values...)
-		if err != nil {
-			return nil, err
-		}
-
-		for i, colName := range columns {
-			val := *(values[i].(*interface{}))
-			if val == nil {
-				dataMap[colName] = ""
-			} else {
-				dataMap[colName] = fmt.Sprintf("%v", val)
-			}
-		}
+	var user UserData
+	err = rows.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.RoleId, &user.Birthdate, &user.Photourl, &user.Push)
+	if err != nil {
+		return UserData{}, err
 	}
 
-	return dataMap, nil
+	return user, nil
 }

@@ -9,14 +9,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-type CacheHandlerFunc func(req interface{}) (res interface{}, err error)
-
-// RecoveryHandlerFuncContext is a function that recovers from the panic `p` by returning an `error`.
-// The context can be used to extract request scoped metadata and context values.
-type CacheHandlerFuncContext func(ctx context.Context, req interface{}) (res interface{}, err error)
-
-func UnaryServerInterceptor(opts ...Option) grpc.UnaryServerInterceptor {
-	o := evaluateOptions(opts)
+func UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		hashKey, err := cache.GetHashKey(req)
 		if err != nil {
@@ -33,7 +26,7 @@ func UnaryServerInterceptor(opts ...Option) grpc.UnaryServerInterceptor {
 		}
 
 		// Если в кэше нет значения, вызываем сам эндпоинт
-		res, err := o.cacheHandlerFunc(ctx, req)
+		res, err := handler(ctx, req)
 		if err == nil {
 			cache.SaveCache(hashKey, res) // Сохраняем результат в кэше
 		}
