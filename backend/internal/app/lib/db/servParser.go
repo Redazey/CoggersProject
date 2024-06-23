@@ -6,7 +6,7 @@ import (
 
 type ServerInfo struct {
 	Id        int
-	Ip        string
+	Adress    string
 	Name      string
 	Version   string
 	MaxOnline int
@@ -16,11 +16,12 @@ type ServerInfo struct {
 /*
 вовзращает данные о серверах из БД в виде структуры:
 
-	Ip        string
+	Id        int
+	Adress    string
 	Name      string
 	Version   string
-	MaxOnline int
-	Online    int
+	MaxOnline int NULL
+	Online    int NULL
 */
 func FetchServersData() (map[string]ServerInfo, error) {
 	rows, err := db.Conn.Query("SELECT * FROM servers")
@@ -35,7 +36,7 @@ func FetchServersData() (map[string]ServerInfo, error) {
 	// Чтение данных из таблицы и добавление их в map
 	for rows.Next() {
 		var server ServerInfo
-		err := rows.Scan(&server.Id, &server.Ip, &server.Name, &server.Version, &server.MaxOnline, &server.Online)
+		err := rows.Scan(&server.Id, &server.Adress, &server.Name, &server.Version)
 		if err != nil {
 			return nil, err
 		}

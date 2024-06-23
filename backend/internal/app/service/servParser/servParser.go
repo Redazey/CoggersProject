@@ -2,6 +2,7 @@ package servParser
 
 import (
 	"CoggersProject/internal/app/errorz"
+	"CoggersProject/internal/app/lib/db"
 	rec "CoggersProject/internal/app/lib/recovery"
 	"CoggersProject/pkg/logger"
 	"encoding/json"
@@ -46,12 +47,16 @@ func parseServerInfo(serverAddress string) (map[string]interface{}, error) {
 	return serverData, nil
 }
 
-func (s *Service) GetOnlineInfo(servers map[string]string) (map[string]map[string]interface{}, error) {
-	serversInfo := make(map[string]map[string]interface{})
+func (s *Service) GetOnlineInfo() (map[string]db.ServerInfo, error) {
+	servers, err := db.FetchServersData()
+	if err != nil {
+		logger.Error("ошибка при получении данных о серверах из БД: ", zap.Error(err))
+	}
+
 	defer rec.Recovery()
 
 	for key, value := range servers {
-		serverInfo, err := parseServerInfo(value)
+		serverInfo, err := parseServerInfo(value.Adress)
 		if err != nil {
 			logStr := fmt.Sprintf("не удалось получить данные о сервере %s, ошибка: ", key)
 			logger.Error(logStr, zap.Error(err))
@@ -64,18 +69,16 @@ func (s *Service) GetOnlineInfo(servers map[string]string) (map[string]map[strin
 			continue
 		}
 
-		serversInfo[key] = make(map[string]interface{})
-
 		playersData := serverInfo["players"].(map[string]interface{})
 
-		serversInfo[key]["online"] = playersData["online"]
-		serversInfo[key]["max"] = playersData["max"]
+		value.Online = playersData["online"].(int)
+		value.MaxOnline = playersData["max"].(int)
 		fmt.Printf("%v: %v\n", key, playersData)
 	}
 
-	if len(serversInfo) == 0 {
+	if len(servers) == 0 {
 		return nil, errorz.ErrServerIsNotResponse
 	}
 
-	return serversInfo, nil
+	return servers, nil
 }

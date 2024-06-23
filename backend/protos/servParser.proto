@@ -10,7 +10,7 @@ message servParserResponse {
 
 message serverInfo {
     int64 Id = 1;
-	string Ip = 2;
+	string Adress = 2;
 	string Name = 3;
 	string Version = 4;
 	int64 MaxOnline = 5;

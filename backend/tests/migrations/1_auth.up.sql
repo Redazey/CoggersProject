@@ -22,7 +22,5 @@ create table servers
     Id        serial primary key,
     Ip        text not null,
 	Name      text not null,
-	Version   text not null,
-	MaxOnline integer not null,
-	Online    integer not null
+	Version   text not null
 );
