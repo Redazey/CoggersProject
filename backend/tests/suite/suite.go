@@ -1,7 +1,7 @@
 package suite
 
 import (
-	"CoggersProject/internal/app/config"
+	"CoggersProject/config"
 	"CoggersProject/pkg/db"
 	"context"
 	"testing"
@@ -13,14 +13,17 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	pbAuth "CoggersProject/gen/go/auth"
+	pbServParser "CoggersProject/gen/go/servParser"
 )
 
 type Suite struct {
 	*testing.T
-	Cfg        *config.Configuration
-	Rdb        *redis.Client
-	Db         *sqlx.DB
-	AuthClient pbAuth.AuthServiceClient
+	Cfg *config.Configuration
+	Rdb *redis.Client
+	Db  *sqlx.DB
+
+	AuthClient       pbAuth.AuthServiceClient
+	ServParserClient pbServParser.ServParserServiceClient
 }
 
 // New creates new test suite.
@@ -67,12 +70,14 @@ func New(t *testing.T) (context.Context, *Suite) {
 
 	// gRPC-клиент сервера Auth
 	authClient := pbAuth.NewAuthServiceClient(cc)
+	servParserClient := pbServParser.NewServParserServiceClient(cc)
 
 	return ctx, &Suite{
-		T:          t,
-		Cfg:        cfg,
-		Rdb:        rdb,
-		Db:         db.Conn,
-		AuthClient: authClient,
+		T:                t,
+		Cfg:              cfg,
+		Rdb:              rdb,
+		Db:               db.Conn,
+		AuthClient:       authClient,
+		ServParserClient: servParserClient,
 	}
 }

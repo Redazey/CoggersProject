@@ -47,10 +47,11 @@ func parseServerInfo(serverAddress string) (map[string]interface{}, error) {
 	return serverData, nil
 }
 
-func (s *Service) GetOnlineInfo() (map[string]db.ServerInfo, error) {
+func (s *Service) GetServersInfo() (map[string]db.ServerInfo, error) {
 	servers, err := db.FetchServersData()
 	if err != nil {
 		logger.Error("ошибка при получении данных о серверах из БД: ", zap.Error(err))
+		return nil, err
 	}
 
 	defer rec.Recovery()

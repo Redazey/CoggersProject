@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"google.golang.org/protobuf/proto"
 )
 
 var (
@@ -71,10 +72,25 @@ func IsExistInCache(hashKey string) (bool, error) {
 }
 
 /*
-функция для записи данных в кэш, принимает grpc requests
+функция для записи данных в кэш, принимает любые данные на вход, кроме rpc
 */
 func SaveCache(hashKey string, data interface{}) error {
-	cacheData, err := json.Marshal(data)
+	Rdb.HSet(Ctx, hashKey, data).Err()
+
+	// Устанавливаем время жизни ключа
+	err := Rdb.Expire(Ctx, hashKey, time.Minute*time.Duration(CacheEXTime)).Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+/*
+функция для записи данных в кэш, принимает любые данные на вход, кроме grpc
+*/
+func SaveProtoCache(hashKey string, data proto.Message) error {
+	cacheData, err := proto.Marshal(data)
 	if err != nil {
 		return nil
 	}
@@ -92,16 +108,47 @@ func SaveCache(hashKey string, data interface{}) error {
 
 /*
 Функция для чтения значений по хэш-ключу
-
-возвращает grpc response
 */
 func ReadCache(hashKey string) (interface{}, error) {
-	response, err := Rdb.Get(Ctx, hashKey).Result()
+	var response interface{}
+	cacheData, err := Rdb.Get(Ctx, hashKey).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	err = json.Unmarshal([]byte(cacheData), response)
 	if err != nil {
 		return nil, err
 	}
 
 	return response, nil
+}
+
+/*
+Функция для чтения значений по хэш-ключу
+
+возвращает grpc response
+*/
+func ReadProtoCache(hashKey string, m proto.Message) (proto.Message, error) {
+	cacheData, err := Rdb.Get(Ctx, hashKey).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	err = proto.Unmarshal([]byte(cacheData), m)
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
 }
 
 /*

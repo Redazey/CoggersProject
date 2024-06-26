@@ -10,22 +10,20 @@ import (
 // Добавляет в бд случайного юзера с данным roleId и возвращает его данные
 func MockUser(roleId int) (map[string]interface{}, error) {
 	UserData := map[string]interface{}{
-		"surname":    gofakeit.Name(),
-		"name":       gofakeit.Name(),
-		"patronymic": gofakeit.Name(),
-		"birthdate":  gofakeit.Date().String(),
-		"photourl":   "testimg",
-		"push":       gofakeit.Bool(),
-		"email":      gofakeit.Email(),
-		"password":   gofakeit.Password(true, true, true, true, false, 10),
-		"roleId":     roleId,
+		"name":      gofakeit.Name(),
+		"birthdate": gofakeit.Date(),
+		"photourl":  "testimg",
+		"push":      gofakeit.Bool(),
+		"email":     gofakeit.Email(),
+		"password":  gofakeit.Password(true, true, true, true, false, 10),
+		"roleId":    roleId,
 	}
 
 	// SQL запрос для вставки данных
-	sqlStatement := `INSERT INTO Users (surname, name, patronymic, birthdate, photourl, push, email, password, roleId) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
+	sqlStatement := `INSERT INTO Users (name, birthdate, photourl, push, email, password, roleId) VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
 	// Выполнение SQL запроса
-	_, err := db.Conn.Exec(sqlStatement, UserData["surname"], UserData["name"], UserData["patronymic"],
+	_, err := db.Conn.Exec(sqlStatement, UserData["name"],
 		UserData["birthdate"], UserData["photourl"], UserData["push"],
 		UserData["email"], UserData["password"], UserData["roleId"])
 	if err != nil {

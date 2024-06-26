@@ -20,14 +20,14 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	ServParserService_GetServerInfo_FullMethodName = "/servParser.servParserService/getServerInfo"
+	ServParserService_GetServersInfo_FullMethodName = "/servParser.ServParserService/GetServersInfo"
 )
 
 // ServParserServiceClient is the client API for ServParserService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServParserServiceClient interface {
-	GetServerInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ServParserResponse, error)
+	GetServersInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ServParserResponse, error)
 }
 
 type servParserServiceClient struct {
@@ -38,10 +38,10 @@ func NewServParserServiceClient(cc grpc.ClientConnInterface) ServParserServiceCl
 	return &servParserServiceClient{cc}
 }
 
-func (c *servParserServiceClient) GetServerInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ServParserResponse, error) {
+func (c *servParserServiceClient) GetServersInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ServParserResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ServParserResponse)
-	err := c.cc.Invoke(ctx, ServParserService_GetServerInfo_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ServParserService_GetServersInfo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (c *servParserServiceClient) GetServerInfo(ctx context.Context, in *emptypb
 // All implementations must embed UnimplementedServParserServiceServer
 // for forward compatibility
 type ServParserServiceServer interface {
-	GetServerInfo(context.Context, *emptypb.Empty) (*ServParserResponse, error)
+	GetServersInfo(context.Context, *emptypb.Empty) (*ServParserResponse, error)
 	mustEmbedUnimplementedServParserServiceServer()
 }
 
@@ -60,8 +60,8 @@ type ServParserServiceServer interface {
 type UnimplementedServParserServiceServer struct {
 }
 
-func (UnimplementedServParserServiceServer) GetServerInfo(context.Context, *emptypb.Empty) (*ServParserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetServerInfo not implemented")
+func (UnimplementedServParserServiceServer) GetServersInfo(context.Context, *emptypb.Empty) (*ServParserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetServersInfo not implemented")
 }
 func (UnimplementedServParserServiceServer) mustEmbedUnimplementedServParserServiceServer() {}
 
@@ -76,20 +76,20 @@ func RegisterServParserServiceServer(s grpc.ServiceRegistrar, srv ServParserServ
 	s.RegisterService(&ServParserService_ServiceDesc, srv)
 }
 
-func _ServParserService_GetServerInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServParserService_GetServersInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServParserServiceServer).GetServerInfo(ctx, in)
+		return srv.(ServParserServiceServer).GetServersInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ServParserService_GetServerInfo_FullMethodName,
+		FullMethod: ServParserService_GetServersInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServParserServiceServer).GetServerInfo(ctx, req.(*emptypb.Empty))
+		return srv.(ServParserServiceServer).GetServersInfo(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -98,12 +98,12 @@ func _ServParserService_GetServerInfo_Handler(srv interface{}, ctx context.Conte
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ServParserService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "servParser.servParserService",
+	ServiceName: "servParser.ServParserService",
 	HandlerType: (*ServParserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "getServerInfo",
-			Handler:    _ServParserService_GetServerInfo_Handler,
+			MethodName: "GetServersInfo",
+			Handler:    _ServParserService_GetServersInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

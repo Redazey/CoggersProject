@@ -1,7 +1,7 @@
 package suite
 
 import (
-	"CoggersProject/internal/app/config"
+	"CoggersProject/config"
 	"context"
 	"testing"
 

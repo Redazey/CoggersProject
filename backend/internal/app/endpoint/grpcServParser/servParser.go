@@ -12,7 +12,7 @@ import (
 )
 
 type ServParser interface {
-	GetOnlineInfo() (map[string]db.ServerInfo, error)
+	GetServersInfo() (map[string]db.ServerInfo, error)
 }
 
 type Endpoint struct {
@@ -20,9 +20,9 @@ type Endpoint struct {
 	pb.UnimplementedServParserServiceServer
 }
 
-func (e *Endpoint) GetServerInfo(ctx context.Context, _ *empty.Empty) (*pb.ServParserResponse, error) {
+func (e *Endpoint) GetServersInfo(ctx context.Context, _ *empty.Empty) (*pb.ServParserResponse, error) {
 	responseMap := make(map[string]*pb.ServerInfo)
-	serversInfo, err := e.Parser.GetOnlineInfo()
+	serversInfo, err := e.Parser.GetServersInfo()
 	if err != nil {
 		return nil, status.Error(codes.Internal, "ошибка получения информации о серверах")
 	}

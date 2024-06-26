@@ -4,11 +4,11 @@ option go_package = "./servParser";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
-message servParserResponse {
-    map<string, serverInfo> serversInfo = 1;
+message ServParserResponse {
+    map<string, ServerInfo> serversInfo = 1;
 }
 
-message serverInfo {
+message ServerInfo {
     int64 Id = 1;
 	string Adress = 2;
 	string Name = 3;
@@ -17,8 +17,8 @@ message serverInfo {
 	int64 Online = 6;
 }
 
-service servParserService {
-    rpc getServerInfo(google.protobuf.Empty) returns (servParserResponse) {
+service ServParserService {
+    rpc GetServersInfo(google.protobuf.Empty) returns (ServParserResponse) {
         option (google.api.http) = {
             get: "/servers"
         };

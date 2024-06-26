@@ -3,10 +3,13 @@ package app
 import (
 	"CoggersProject/config"
 	pbAuth "CoggersProject/gen/go/auth"
+	pbServParser "CoggersProject/gen/go/servParser"
 	"CoggersProject/internal/app/endpoint/grpcAuth"
+	"CoggersProject/internal/app/endpoint/grpcServParser"
 	"CoggersProject/internal/app/interceptors/caching"
 	"CoggersProject/internal/app/lib/cacher"
 	"CoggersProject/internal/app/service/auth"
+	"CoggersProject/internal/app/service/servParser"
 	"CoggersProject/pkg/cache"
 	"CoggersProject/pkg/db"
 	"CoggersProject/pkg/logger"
@@ -18,7 +21,8 @@ import (
 )
 
 type App struct {
-	auth *auth.Service
+	auth       *auth.Service
+	servParser *servParser.Service
 
 	server *grpc.Server
 }
@@ -43,13 +47,19 @@ func New() (*App, error) {
 
 	// инициализируем сервисы
 	a.auth = auth.New(cfg)
+	a.servParser = servParser.New()
 
 	// инициализируем эндпоинты
 	serviceAuth := &grpcAuth.Endpoint{
 		Auth: a.auth,
 	}
 
+	serviceServParser := &grpcServParser.Endpoint{
+		Parser: a.servParser,
+	}
+
 	pbAuth.RegisterAuthServiceServer(a.server, serviceAuth)
+	pbServParser.RegisterServParserServiceServer(a.server, serviceServParser)
 
 	err = cache.Init(cfg.Redis.RedisAddr+":"+cfg.Redis.RedisPort, cfg.Redis.RedisPassword, cfg.Redis.RedisDBId, cfg.Cache.EXTime)
 	if err != nil {
