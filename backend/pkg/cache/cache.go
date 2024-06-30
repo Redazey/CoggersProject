@@ -2,13 +2,12 @@ package cache
 
 import (
 	"context"
-	"crypto/md5"
-	"encoding/hex"
 	"encoding/json"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 var (
@@ -35,23 +34,6 @@ func Init(Addr string, Password string, DB int, CacheEx time.Duration) error {
 }
 
 /*
-получение хэш ключа по реквесту
-*/
-func GetHashKey(data interface{}) (string, error) {
-	var hashKey string
-
-	reqJSON, err := json.Marshal(data)
-	if err != nil {
-		return hashKey, err
-	}
-
-	hash := md5.Sum(reqJSON)
-	hashKey = hex.EncodeToString(hash[:])
-
-	return hashKey, nil
-}
-
-/*
 функция для проверки существования таблицы в кэше
 
 принимает:
@@ -72,36 +54,10 @@ func IsExistInCache(hashKey string) (bool, error) {
 }
 
 /*
-функция для записи данных в кэш, принимает любые данные на вход, кроме rpc
+функция для записи данных в кэш как string, принимает любые данные на вход
 */
 func SaveCache(hashKey string, data interface{}) error {
-	Rdb.HSet(Ctx, hashKey, data).Err()
-
-	// Устанавливаем время жизни ключа
-	err := Rdb.Expire(Ctx, hashKey, time.Minute*time.Duration(CacheEXTime)).Err()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-/*
-функция для записи данных в кэш, принимает любые данные на вход, кроме grpc
-*/
-func SaveProtoCache(hashKey string, data proto.Message) error {
-	cacheData, err := proto.Marshal(data)
-	if err != nil {
-		return nil
-	}
-
-	Rdb.HSet(Ctx, hashKey, cacheData).Err()
-
-	// Устанавливаем время жизни ключа
-	err = Rdb.Expire(Ctx, hashKey, time.Minute*time.Duration(CacheEXTime)).Err()
-	if err != nil {
-		return err
-	}
+	Rdb.Set(Ctx, hashKey, data, time.Minute*CacheEXTime).Err()
 
 	return nil
 }
@@ -109,46 +65,51 @@ func SaveProtoCache(hashKey string, data proto.Message) error {
 /*
 Функция для чтения значений по хэш-ключу
 */
-func ReadCache(hashKey string) (interface{}, error) {
-	var response interface{}
-	cacheData, err := Rdb.Get(Ctx, hashKey).Result()
+func ReadCache(hashKey string) (string, error) {
+	response, err := Rdb.Get(Ctx, hashKey).Result()
 	if err != nil {
 		if err == redis.Nil {
-			return nil, nil
+			return "", nil
 		}
 
-		return nil, err
-	}
-
-	err = json.Unmarshal([]byte(cacheData), response)
-	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	return response, nil
 }
 
 /*
-Функция для чтения значений по хэш-ключу
-
-возвращает grpc response
+функция для записи map в кэш
 */
-func ReadProtoCache(hashKey string, m proto.Message) (proto.Message, error) {
+func SaveMapCache(hashKey string, dataMap any) error {
+	marshaledMap, err := json.Marshal(dataMap)
+	if err != nil {
+		return err
+	}
+	Rdb.Set(Ctx, hashKey, marshaledMap, time.Minute*CacheEXTime).Err()
+
+	return nil
+}
+
+/*
+Функция для чтения map по хэш-ключу
+*/
+func ReadMapCache(hashKey string, response any) error {
 	cacheData, err := Rdb.Get(Ctx, hashKey).Result()
 	if err != nil {
 		if err == redis.Nil {
-			return nil, nil
+			return nil
 		}
 
-		return nil, err
+		return err
 	}
 
-	err = proto.Unmarshal([]byte(cacheData), m)
+	err = json.Unmarshal([]byte(cacheData), &response)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return m, nil
+	return nil
 }
 
 /*
@@ -234,5 +195,45 @@ func ClearCache(hashKey string) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+/*
+Функция для чтения значений по хэш-ключу
+
+возвращает grpc response
+*/
+func ReadProtoCache(hashKey string, m protoreflect.ProtoMessage) (protoreflect.ProtoMessage, error) {
+	cacheData, err := Rdb.Get(Ctx, hashKey).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	err = proto.Unmarshal([]byte(cacheData), m)
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
+}
+
+/*
+функция для записи данных в кэш
+*/
+func SaveProtoCache(hashKey string, data protoreflect.ProtoMessage) error {
+	cacheData, err := proto.Marshal(data)
+	if err != nil {
+		return nil
+	}
+
+	err = Rdb.Set(Ctx, hashKey, cacheData, time.Minute*CacheEXTime).Err()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

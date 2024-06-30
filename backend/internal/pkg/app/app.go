@@ -2,16 +2,15 @@ package app
 
 import (
 	"CoggersProject/config"
-	pbAuth "CoggersProject/gen/go/auth"
-	pbServParser "CoggersProject/gen/go/servParser"
 	"CoggersProject/internal/app/endpoint/grpcAuth"
 	"CoggersProject/internal/app/endpoint/grpcServParser"
-	"CoggersProject/internal/app/interceptors/caching"
 	"CoggersProject/internal/app/lib/cacher"
 	"CoggersProject/internal/app/service/auth"
 	"CoggersProject/internal/app/service/servParser"
 	"CoggersProject/pkg/cache"
 	"CoggersProject/pkg/db"
+	pbAuth "CoggersProject/pkg/gen/go/auth"
+	pbServParser "CoggersProject/pkg/gen/go/servParser"
 	"CoggersProject/pkg/logger"
 	"log"
 	"net"
@@ -39,11 +38,7 @@ func New() (*App, error) {
 
 	a := &App{}
 
-	a.server = grpc.NewServer(
-		grpc.UnaryInterceptor(
-			caching.UnaryServerInterceptor(),
-		),
-	)
+	a.server = grpc.NewServer()
 
 	// инициализируем сервисы
 	a.auth = auth.New(cfg)

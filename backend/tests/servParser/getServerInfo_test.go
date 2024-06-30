@@ -16,5 +16,6 @@ func TestGetServersInfo(t *testing.T) {
 	serversInfo, err := st.ServParserClient.GetServersInfo(ctx, &emptypb.Empty{})
 	assert.Nil(t, err, "неожиданная ошибка: ", zap.Error(err))
 
-	fmt.Printf("%s", serversInfo)
+	assert.NotEqual(t, int64(0), serversInfo.ServersInfo["LastMine"].MaxOnline, "Полученная информация не содержит необходимые строки")
+	fmt.Printf("Полученные данные: %s", serversInfo)
 }

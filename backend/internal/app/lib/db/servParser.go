@@ -9,8 +9,8 @@ type ServerInfo struct {
 	Adress    string
 	Name      string
 	Version   string
-	MaxOnline int
-	Online    int
+	MaxOnline float64
+	Online    float64
 }
 
 /*

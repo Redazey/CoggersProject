@@ -8,6 +8,7 @@ import (
 	"CoggersProject/pkg/cache"
 	"CoggersProject/pkg/logger"
 	"database/sql"
+	"fmt"
 
 	"go.uber.org/zap"
 )
@@ -23,26 +24,18 @@ func New(cfg *config.Configuration) *Service {
 }
 
 func (s *Service) UserLogin(email string, password string) (string, error) {
-	msg := map[string]string{
-		"email":    email,
-		"password": password,
-	}
+	hashKey := fmt.Sprintf("sso_%s_%s", email, password)
 
-	hashKey, err := cache.GetHashKey(msg)
-	if err != nil {
-		logger.Error("ошибка при генерации хэш-ключа: ", zap.Error(err))
-		return "", err
-	}
-
-	cacheData, err := cache.ReadCache(hashKey)
+	var cacheData map[string]string
+	err := cache.ReadMapCache(hashKey, &cacheData)
 	if err != nil {
 		logger.Error("ошибка при поиске данных в кэше Redis: ", zap.Error(err))
 		return "", err
 	}
 
-	cachePwd, ok := cacheData.(map[string]string)["password"]
+	cachePwd, ok := cacheData["password"]
 	if !ok {
-		return "", errorz.ErrTypeConversion
+
 	}
 
 	if cachePwd != "" && cachePwd != password {
@@ -76,17 +69,7 @@ func (s *Service) UserLogin(email string, password string) (string, error) {
 }
 
 func (s *Service) NewUserRegistration(email string, password string) (string, error) {
-	msg := map[string]string{
-		"email":    email,
-		"password": password,
-	}
-
-	hashKey, err := cache.GetHashKey(msg)
-	if err != nil {
-		logger.Error("ошибка при генерации хэш-ключа: ", zap.Error(err))
-		return "", err
-	}
-
+	hashKey := fmt.Sprintf("sso_%s_%s", email, password)
 	exists, err := cache.IsExistInCache(hashKey)
 	if err != nil {
 		logger.Error("ошибка при поиске значения в кэше: ", zap.Error(err))
@@ -124,21 +107,12 @@ func (s *Service) IsAdmin(tokenString string) (bool, error) {
 		return false, err
 	}
 
-	hashKey, err := cache.GetHashKey(userData)
-	if err != nil {
-		logger.Error("ошибка при генерации хэш-ключа: ", zap.Error(err))
-		return false, err
-	}
+	var userDataMap map[string]string
 
-	cacheUserData, err := cache.ReadCache(hashKey)
+	err = cache.ReadMapCache(fmt.Sprintf("sso_%s_%s", userData["email"], userData["password"]), userDataMap)
 	if err != nil {
 		logger.Error("ошибка при поиске данных в кэше Redis: ", zap.Error(err))
 		return false, err
-	}
-
-	userDataMap, ok := cacheUserData.(map[string]string)
-	if !ok {
-		return false, errorz.ErrTypeConversion
 	}
 	roleId := userDataMap["roleId"]
 

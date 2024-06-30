@@ -24,7 +24,7 @@ func New() *Service {
 func parseServerInfo(serverAddress string) (map[string]interface{}, error) {
 	var serverData map[string]interface{}
 
-	response, err := http.Get(serverAddress)
+	response, err := http.Get(fmt.Sprintf("https://api.mcsrvstat.us/3/%s", serverAddress))
 	if err != nil {
 		fmt.Println("Ошибка при отправке запроса:", err)
 		return nil, err
@@ -61,20 +61,21 @@ func (s *Service) GetServersInfo() (map[string]db.ServerInfo, error) {
 		if err != nil {
 			logStr := fmt.Sprintf("не удалось получить данные о сервере %s, ошибка: ", key)
 			logger.Error(logStr, zap.Error(err))
+			continue
 		}
 
 		serverStatus := serverInfo["online"]
 		if serverStatus == false {
 			logStr := fmt.Sprintf("Сервер %v не отвечает", key)
-			logger.Info(logStr)
+			logger.Warn(logStr)
 			continue
 		}
 
 		playersData := serverInfo["players"].(map[string]interface{})
 
-		value.Online = playersData["online"].(int)
-		value.MaxOnline = playersData["max"].(int)
-		fmt.Printf("%v: %v\n", key, playersData)
+		value.Online = playersData["online"].(float64)
+		value.MaxOnline = playersData["max"].(float64)
+		servers[key] = value
 	}
 
 	if len(servers) == 0 {

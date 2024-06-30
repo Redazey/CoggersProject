@@ -12,4 +12,4 @@ tasks:
       - gen  
     desc: "Generate code from proto files"  
     cmds:  ## Тут описываем необходимые bash-команды
-      - protoc -I googleapis -I protos protos/*.proto --go_out=gen/go/. --go-grpc_out=gen/go/.
+      - protoc -I googleapis -I protos protos/*.proto --go_out=pkg/gen/go/. --go-grpc_out=pkg/gen/go/.

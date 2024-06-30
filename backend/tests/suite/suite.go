@@ -12,8 +12,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	pbAuth "CoggersProject/gen/go/auth"
-	pbServParser "CoggersProject/gen/go/servParser"
+	pbAuth "CoggersProject/pkg/gen/go/auth"
+	pbServParser "CoggersProject/pkg/gen/go/servParser"
 )
 
 type Suite struct {

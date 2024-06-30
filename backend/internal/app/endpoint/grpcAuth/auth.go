@@ -1,8 +1,8 @@
 package grpcAuth
 
 import (
-	pb "CoggersProject/gen/go/auth"
 	"CoggersProject/internal/app/errorz"
+	pb "CoggersProject/pkg/gen/go/auth"
 	"context"
 	"errors"
 

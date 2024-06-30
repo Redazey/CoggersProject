@@ -4,6 +4,7 @@ import (
 	"CoggersProject/pkg/cache"
 	"CoggersProject/pkg/logger"
 	"context"
+	"fmt"
 	"reflect"
 
 	"go.uber.org/zap"
@@ -13,10 +14,7 @@ import (
 
 func UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-		hashKey, err := cache.GetHashKey(req)
-		if err != nil {
-			logger.Error("возникла ошибка при получении хэш-ключа", zap.Error(err))
-		}
+		hashKey := fmt.Sprintf("mw_%s", req)
 
 		responseStruct := reflect.TypeOf(handler)
 		m := responseStruct.Out(0).(proto.Message)

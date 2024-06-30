@@ -2,16 +2,14 @@ package suite
 
 import (
 	"CoggersProject/config"
+	"CoggersProject/pkg/cache"
 	"context"
 	"testing"
-
-	"github.com/redis/go-redis/v9"
 )
 
 type Suite struct {
 	*testing.T
 	Cfg *config.Configuration
-	Rdb *redis.Client
 }
 
 // New creates new test suite.
@@ -34,20 +32,16 @@ func New(t *testing.T) (context.Context, *Suite) {
 		cancelCtx()
 	})
 
-	// Создаем кеш
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     cfg.Redis.RedisAddr + ":" + cfg.Redis.RedisPort,
-		Password: cfg.Redis.RedisPassword,
-		DB:       cfg.Redis.RedisDBId,
-	})
-	err = rdb.Ping(ctx).Err()
-	if err != nil {
-		t.Fatalf("redis connection failed: %v", err)
-	}
+	// Инициализируем кеш
+	cache.Init(
+		cfg.Redis.RedisAddr+":"+cfg.Redis.RedisPort,
+		cfg.Redis.RedisPassword,
+		cfg.Redis.RedisDBId,
+		cfg.Cache.EXTime,
+	)
 
 	return ctx, &Suite{
 		T:   t,
 		Cfg: cfg,
-		Rdb: rdb,
 	}
 }

@@ -1,8 +1,8 @@
 package grpcServParser
 
 import (
-	pb "CoggersProject/gen/go/servParser"
 	"CoggersProject/internal/app/lib/db"
+	pb "CoggersProject/pkg/gen/go/servParser"
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
