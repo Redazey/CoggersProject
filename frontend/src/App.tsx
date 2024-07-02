@@ -1,32 +1,50 @@
-import React, { useState, useEffect } from "react";
-import './App.css';
-import Header from "./Header";
-import Footer from "./Footer";
-import ScrollRotate from "./scripts/scroll-rotate"
-import contentImg from './imgs/content.png';
-import NewsItem from "./news";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import './assets/styles/App.scss';
+import logoImg from './assets/images/logo.png' ;
+import contentImg from './assets/images/content.png';
+import Navigation from "./components/Navigation";
+import Footer from "./components/Footer";
+import Home from "./pages/Home"
+import NewsItem from "./pages/NewsItem"
 
 const App: React.FC = () => {
-    useEffect(() => {
-        ScrollRotate();
-    }, []);
-
     return (
-        <div className="Content">
-            <Header />
-            <main>
-                <div className="top-content">
-                    <img id="scrolling-image" src={contentImg} alt="Scrolling Image" />
-                </div>
+        <>
+            <Router>
+                <div className="container">
+                    <header>
+                        <div className="header__logo">
+                            <Link to="#"><img src={logoImg} alt="logo"/></Link>
+                            <h3>Coggers Project</h3>
+                        </div>
 
-                <div className="mid-content">
-                    <div className="news-container">
-                        <NewsItem />
-                    </div>
+                        <nav>
+                            <Navigation />
+                        </nav>
+                    </header>
+
+                    <main>
+                        <div className="main__top">
+                            <img id="scrolling-image" src={contentImg} alt="Scrolling Image" />
+                        </div>
+
+                        <div className="main__middle">
+                            <Routes>
+                                {/* Мэйн */}
+                                <Route path="/" element={<Home />} />
+                                <Route path="/news/id/:id" element={<NewsItem />} />
+                                {/* Админ-панель */}
+                            </Routes>
+                        </div>
+                    </main>
+                    
+                    <footer>
+                        <Footer />
+                    </footer>
                 </div>
-            </main>
-            <Footer />
-        </div>
+            </Router>
+        </>
     );
 };
 
