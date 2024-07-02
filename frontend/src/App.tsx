@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import './assets/styles/App.scss';
+import ScrollRotate from "./scripts/scroll-rotate"
 import logoImg from './assets/images/logo.png' ;
 import contentImg from './assets/images/content.png';
 import Navigation from "./components/Navigation";
@@ -9,6 +9,11 @@ import Home from "./pages/Home"
 import NewsItem from "./pages/NewsItem"
 
 const App: React.FC = () => {
+
+    useEffect(() => {
+        ScrollRotate();
+    }, []);
+
     return (
         <>
             <Router>

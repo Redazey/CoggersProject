@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import '../assets/styles/pages/Home.scss';
+import '../assets/styles/pages/Home/Home.min.css';
 
 const Home: React.FC = () => {
     const [news, setNews] = useState<any[]>([]);
