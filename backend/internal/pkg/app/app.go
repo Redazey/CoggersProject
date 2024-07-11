@@ -9,9 +9,9 @@ import (
 	"CoggersProject/internal/app/service/servParser"
 	"CoggersProject/pkg/cache"
 	"CoggersProject/pkg/db"
-	pbAuth "CoggersProject/pkg/gen/go/auth"
-	pbServParser "CoggersProject/pkg/gen/go/servParser"
 	"CoggersProject/pkg/logger"
+	pbAuth "CoggersProject/pkg/protos/auth"
+	pbServParser "CoggersProject/pkg/protos/servParser"
 	"log"
 	"net"
 

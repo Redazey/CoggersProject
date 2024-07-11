@@ -3,7 +3,7 @@ package cache_test
 import (
 	"CoggersProject/pkg/cache"
 	"CoggersProject/pkg/cache/tests/suite"
-	pbAuth "CoggersProject/pkg/gen/go/auth"
+	pbAuth "CoggersProject/pkg/protos/auth"
 	"fmt"
 	"testing"
 

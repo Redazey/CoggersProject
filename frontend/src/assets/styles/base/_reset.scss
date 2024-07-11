@@ -10,12 +10,11 @@ main {
 }
   
 body {
-    height: 100%;
     margin: 0;
     padding: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    color: #d6d6d6;
+    color: $text-primary-color;
     font-size: 14pt;
 }
 
@@ -28,81 +27,83 @@ a {
     text-decoration: none;
 }
 
-header {
-    background-color: #232328;
-    border-bottom: #2B2B2B solid 2px;
-    padding: 20px 40px;
-    max-height: 70px;   
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-
-    .header__logo {
-        display: inline-flex;
-
-        img {
-            height: 70px;
-        }
-
-        h3 {
-            display: block;
-            margin: auto 0 auto 20px;
-        }
-    }
-
-    nav {
-        display: inline-flex;
-    }
-}
-
-main {
+.container {
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    background-color: #1B1B1B;
 
-    .main__top {
-        background-image: url($top-container-bg);
-        background-size: cover;
-        background-position: center;
-
-        padding-top: 100px;
-        display: flex;  
-        justify-content: center;
+    header {
+        background-color: $secondary-color;
+        padding: 10px 40px; 
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
         align-items: center;
-        flex-direction: column;
-        z-index: 0;
 
-        /* шестеренка */
-        img {
-            height: 400px;
-            margin-bottom: -200px;
-            z-index: 0;
+        .header__logo {
+            display: inline-flex;
+            
+            a img {
+                height: 50px;
+            }
+
+            h3 {
+                display: block;
+                margin: auto 0 auto 20px;
+            }
         }
 
-        
+        nav {
+            display: inline-flex;
+        }
     }
 
-    .main__middle {
-        margin: 0 auto 0 auto;
-        z-index: 1;
+    main {
         display: flex;
-        height: 100%;
-        background-color: #2B2B2B;
-        padding: 50px;
-        border-top-left-radius: 50px;
-        border-top-right-radius: 50px;
+        flex-direction: column;
+        background-color: $secondary-color;
+        flex-grow: 1;
 
-        /* Стили для маленьких экранов (например, ширина < 1050px) */
-        @media screen and (max-width: 1050px) {
-            width: 100%;
-            border-radius: 0px;
+        .main__top {
+            background-image: url($top-container-bg);
+            background-size: cover;
+            background-position: center;
+
+            padding-top: 100px;
+            display: flex;  
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 0;
+
+            /* шестеренка */
+            img {
+                height: 400px;
+                margin-bottom: -200px;
+                z-index: 0;
+            }
         }
-        
-        /* Стили для больших экранов (например, ширина >= 1050px) */
-        @media screen and (min-width: 1050px) {
-            width: 70%;
+
+        .main__middle {
+            margin: 0 auto 0 auto;
+            z-index: 1;
+            display: flex;
+            flex-grow: 1;
+            background-color: $primary-color;
+            padding: 50px;
+            border-top-left-radius: 50px;
+            border-top-right-radius: 50px;
+
+            /* Стили для маленьких экранов (например, ширина < 1050px) */
+            @media screen and (max-width: 1050px) {
+                width: 100%;
+                border-radius: 0px;
+            }
+            
+            /* Стили для больших экранов (например, ширина >= 1050px) */
+            @media screen and (min-width: 1050px) {
+                width: 70%;
+            }
         }
     }
 }

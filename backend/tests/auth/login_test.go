@@ -1,8 +1,8 @@
 package auth_tests
 
 import (
-	pbAuth "CoggersProject/gen/go/auth"
 	"CoggersProject/internal/app/lib/jwt"
+	pbAuth "CoggersProject/pkg/protos/auth"
 	"CoggersProject/tests/suite"
 	"log"
 	"testing"

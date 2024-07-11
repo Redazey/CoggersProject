@@ -1,13 +1,14 @@
 @import "../../base/reset";
 @import "../../base/typography";
 
+@import "../../components/navigation";
+
 .news__item {
     display: flex;
     justify-content: space-between;
     margin-bottom: 100px;
 
     .news__text {
-        color: white;
         display: flex;
         flex-direction: column;
         height: 250px;

@@ -1,0 +1,48 @@
+# ./Taskfile.yaml
+# See: https://taskfile.dev/api/  
+
+version: "3"  
+
+tasks:  
+  default: # Если не указать конкретную команду, будут выполнены дефолтные
+    cmds:  
+      - task: build
+  test:
+    cmds:
+      - cd backend && go test -race -count 1 ./...
+
+  cover:
+    cmds:
+      - cd backend
+      - go test -short -race -count 1 -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out
+      - cmd /c rmdir /s /q backend/coverage.out
+
+  build:
+    cmds:
+      - task: build-backend
+      - task: build-frontend
+
+  build-backend:
+    cmds:
+      - protoc -I googleapis -I protos protos/*.proto --go_out=backend/pkg/protos/. --go-grpc_out=backend/pkg/protos/.
+      - cd backend/build && cmd /c del *
+
+      - set GOOS=windows
+      - set GOARCH=amd64
+      - set CGO_ENABLED=0
+
+      - cd backend && go build -o build/CoggersProject_amd64.exe ./cmd/main/main.go
+
+
+  build-frontend:
+    cmds:
+      - protoc -I googleapis -I protos protos/*.proto --ts_opt=target=web
+       --ts_out=frontend/src/protos/.
+      - sed -i '1i/* eslint-disable */\n// @ts-nocheck' frontend/src/protos/google/api/*.ts
+      - sed -i '1i/* eslint-disable */\n// @ts-nocheck' frontend/src/protos/google/protobuf/*.ts
+      - sed -i '1i/* eslint-disable */\n// @ts-nocheck' frontend/src/protos/*.ts
+      - cmd /c del sed*
+      - cd frontend && npm run build
+
+      

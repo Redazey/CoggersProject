@@ -9,12 +9,11 @@ main {
 }
 
 body {
-  height: 100%;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #d6d6d6;
+  color: #ffffff;
   font-size: 14pt;
 }
 
@@ -26,37 +25,39 @@ a {
   text-decoration: none;
 }
 
-header {
-  background-color: #232328;
-  border-bottom: #2B2B2B solid 2px;
-  padding: 20px 40px;
-  max-height: 70px;
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.container header {
+  background-color: #1B1B1B;
+  padding: 10px 40px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
 }
-header .header__logo {
+.container header .header__logo {
   display: inline-flex;
 }
-header .header__logo img {
-  height: 70px;
+.container header .header__logo a img {
+  height: 50px;
 }
-header .header__logo h3 {
+.container header .header__logo h3 {
   display: block;
   margin: auto 0 auto 20px;
 }
-header nav {
+.container header nav {
   display: inline-flex;
 }
-
-main {
+.container main {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
   background-color: #1B1B1B;
+  flex-grow: 1;
 }
-main .main__top {
+.container main .main__top {
   background-image: url("../../../images/bg.jpg");
   background-size: cover;
   background-position: center;
@@ -68,17 +69,17 @@ main .main__top {
   z-index: 0;
   /* шестеренка */
 }
-main .main__top img {
+.container main .main__top img {
   height: 400px;
   margin-bottom: -200px;
   z-index: 0;
 }
-main .main__middle {
+.container main .main__middle {
   margin: 0 auto 0 auto;
   z-index: 1;
   display: flex;
-  height: 100%;
-  background-color: #2B2B2B;
+  flex-grow: 1;
+  background-color: #2b2b2b;
   padding: 50px;
   border-top-left-radius: 50px;
   border-top-right-radius: 50px;
@@ -86,13 +87,13 @@ main .main__middle {
   /* Стили для больших экранов (например, ширина >= 1050px) */
 }
 @media screen and (max-width: 1050px) {
-  main .main__middle {
+  .container main .main__middle {
     width: 100%;
     border-radius: 0px;
   }
 }
 @media screen and (min-width: 1050px) {
-  main .main__middle {
+  .container main .main__middle {
     width: 70%;
   }
 }
@@ -130,6 +131,31 @@ h6 {
   font-size: 0.5rem;
 }
 
+nav a {
+  color: #2b2b2b;
+  display: inline-block;
+  background-color: #FADB6F;
+  margin: 0 40px 0 0;
+  padding: 15px 40px;
+  border-radius: 20px;
+  transition: transform 0.3s;
+  /* Стили для больших экранов (например, ширина >= 768px) */
+  /* Стили для маленьких экранов (например, ширина < 768px) */
+}
+nav a:hover {
+  transform: translateY(-5px);
+}
+@media screen and (min-width: 768px) {
+  nav a {
+    display: block;
+  }
+}
+@media screen and (max-width: 767px) {
+  nav a {
+    display: none;
+  }
+}
+
 .news__item {
   display: flex;
   justify-content: space-between;
@@ -138,7 +164,6 @@ h6 {
   /* Стили для больших экранов (например, ширина >= 1050px) */
 }
 .news__item .news__text {
-  color: white;
   display: flex;
   flex-direction: column;
   height: 250px;

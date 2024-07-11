@@ -1,0 +1,26 @@
+syntax = "proto3";
+package servParser;
+option go_package = "./servParser";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+message ServParserResponse {
+    map<string, ServerInfo> serversInfo = 1;
+}
+
+message ServerInfo {
+    int64 Id = 1;
+	string Adress = 2;
+	string Name = 3;
+	string Version = 4;
+	int64 MaxOnline = 5;
+	int64 Online = 6;
+}
+
+service ServParserService {
+    rpc GetServersInfo(google.protobuf.Empty) returns (ServParserResponse) {
+        option (google.api.http) = {
+            get: "/servers"
+        };
+    }
+}
