@@ -1,9 +1,40 @@
 @import "../base/variables";
 aside {
-    width: 15%;
-    min-width: 200px;
-    background-color: $secondary-color;
-    border-radius: 20px;
+    display: flex;
+    background-color: $primary-color;
     min-height: fit-content;
     padding: 1rem;
+
+    .servers__card {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+
+        table {
+            margin: 0 auto 0 auto;
+        }
+
+        /* Стили для маленьких экранов (например, ширина < 1050px) */
+        @media screen and (max-width: 1050px) {
+            margin: 0 20px 0 20px;
+        }
+    }
+
+    /* Стили для маленьких экранов (например, ширина < 1050px) */
+    @media screen and (max-width: 1050px) {
+        margin-top: 20px;
+        width: fit-content;
+        min-width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        border-radius: 0px;
+    }
+    
+    /* Стили для больших экранов (например, ширина >= 1050px) */
+    @media screen and (min-width: 1050px) {
+        width: 15%;
+        min-width: 200px;
+        flex-direction: column;
+        border-radius: 20px;
+    }
 }

@@ -1,7 +1,7 @@
 {
     "servers": [
         {
-            "name": "hypixel",
+            "name": "Hypixel",
             "adress": "mc.hypixel.net",
             "version": "<3"
         },

@@ -33,16 +33,16 @@ header {
             transition: transform 0.3s;
         
             &:hover { 
-                transform: translateY(-5px);
+                transform: translateY(-3px);
             }
         
             /* Стили для больших экранов (например, ширина >= 768px) */
-            @media screen and (min-width: 768px) {
+            @media screen and (min-width: 1050px) {
                 display: block;
             }
         
             /* Стили для маленьких экранов (например, ширина < 768px) */
-            @media screen and (max-width: 767px) {
+            @media screen and (max-width: 1050px) {
                 display: none;
             }
         }

@@ -76,11 +76,9 @@ const Aside: React.FC = () => {
 
     return (
         <>
-            <div className="servers">
-                {Array.from(serversInfo).map(([key, value]) => (
-                    <ServerCard key={key} server={value}/>
-                ))}
-            </div>
+            {Array.from(serversInfo).map(([key, value]) => (
+                <ServerCard key={key} server={value}/>
+            ))}
         </>
     );
 };

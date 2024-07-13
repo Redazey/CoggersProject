@@ -54,27 +54,26 @@ a {
   z-index: 0;
 }
 .container main .main__middle {
+  overflow-x: auto;
   margin: 0 auto 0 auto;
+  width: 100%;
   z-index: 1;
+  background-color: #1B1B1B;
   display: flex;
-  flex-direction: row;
   flex-grow: 1;
-  background-color: #2b2b2b;
-  padding: 50px;
-  border-top-left-radius: 50px;
-  border-top-right-radius: 50px;
   /* Стили для маленьких экранов (например, ширина < 1050px) */
   /* Стили для больших экранов (например, ширина >= 1050px) */
 }
 @media screen and (max-width: 1050px) {
   .container main .main__middle {
-    width: 100%;
-    border-radius: 0px;
+    flex-direction: column;
   }
 }
 @media screen and (min-width: 1050px) {
   .container main .main__middle {
-    width: 80%;
+    flex-direction: row;
+    padding: 50px;
+    box-sizing: border-box;
   }
 }
 
@@ -144,28 +143,62 @@ header nav a {
   /* Стили для маленьких экранов (например, ширина < 768px) */
 }
 header nav a:hover {
-  transform: translateY(-5px);
+  transform: translateY(-3px);
 }
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 1050px) {
   header nav a {
     display: block;
   }
 }
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 1050px) {
   header nav a {
     display: none;
   }
 }
 
 aside {
-  width: 15%;
-  min-width: 200px;
-  background-color: #1B1B1B;
-  border-radius: 20px;
+  display: flex;
+  background-color: #2b2b2b;
   min-height: -webkit-fit-content;
   min-height: -moz-fit-content;
   min-height: fit-content;
   padding: 1rem;
+  /* Стили для маленьких экранов (например, ширина < 1050px) */
+  /* Стили для больших экранов (например, ширина >= 1050px) */
+}
+aside .servers__card {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  /* Стили для маленьких экранов (например, ширина < 1050px) */
+}
+aside .servers__card table {
+  margin: 0 auto 0 auto;
+}
+@media screen and (max-width: 1050px) {
+  aside .servers__card {
+    margin: 0 20px 0 20px;
+  }
+}
+@media screen and (max-width: 1050px) {
+  aside {
+    margin-top: 20px;
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
+    width: fit-content;
+    min-width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    border-radius: 0px;
+  }
+}
+@media screen and (min-width: 1050px) {
+  aside {
+    width: 15%;
+    min-width: 200px;
+    flex-direction: column;
+    border-radius: 20px;
+  }
 }
 
 .news__item {
