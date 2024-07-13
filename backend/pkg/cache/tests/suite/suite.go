@@ -9,7 +9,7 @@ import (
 
 type Suite struct {
 	*testing.T
-	Cfg *config.Configuration
+	env *config.Enviroment
 }
 
 // New creates new test suite.
@@ -18,13 +18,13 @@ func New(t *testing.T) (context.Context, *Suite) {
 	t.Parallel() // Разрешаем параллельный запуск тестов
 
 	// Читаем конфиг из файла
-	cfg, err := config.NewConfig("../../../.env")
+	env, _, err := config.NewConfig("../../../.env")
 	if err != nil {
 		t.Fatalf("ошибка при инициализации файла конфигурации: %s", err)
 	}
 
 	// Основной родительский контекст
-	ctx, cancelCtx := context.WithTimeout(context.Background(), cfg.GRPCTimeout)
+	ctx, cancelCtx := context.WithTimeout(context.Background(), env.GRPCTimeout)
 
 	// Когда тесты пройдут, закрываем контекст
 	t.Cleanup(func() {
@@ -34,14 +34,14 @@ func New(t *testing.T) (context.Context, *Suite) {
 
 	// Инициализируем кеш
 	cache.Init(
-		cfg.Redis.RedisAddr+":"+cfg.Redis.RedisPort,
-		cfg.Redis.RedisPassword,
-		cfg.Redis.RedisDBId,
-		cfg.Cache.EXTime,
+		env.Redis.RedisAddr+":"+env.Redis.RedisPort,
+		env.Redis.RedisPassword,
+		env.Redis.RedisDBId,
+		env.Cache.EXTime,
 	)
 
 	return ctx, &Suite{
 		T:   t,
-		Cfg: cfg,
+		env: env,
 	}
 }

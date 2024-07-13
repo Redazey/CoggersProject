@@ -1,14 +1,17 @@
 package config
 
 import (
+	"encoding/json"
 	"log"
+	"os"
 	"time"
 
 	"github.com/caarlos0/env"
 	"github.com/joho/godotenv"
 )
 
-type Configuration struct {
+// Файл переменных окружения
+type Enviroment struct {
 	LoggerLevel string        `env:"loggerMode" envDefault:"debug"`
 	GRPCTimeout time.Duration `env:"GRPC_TIMEOUT" envDefault:"10h"`
 	JwtSecret   string        `env:"JWT_SECRET,required"`
@@ -32,19 +35,33 @@ type Redis struct {
 }
 
 type Cache struct {
-	EXTime         time.Duration `env:"EXTime" envDefault:"15m"`
-	UpdateInterval string        `env:"updateTime" envDefault:"15"`
+	EXTime         time.Duration `json:"EXTime"`
+	UpdateInterval string        `json:"updateInterval"`
+}
+
+// Файл конфигурации
+type Configuration struct {
+	Servers []Servers `json:"servers"`
+}
+
+type Servers struct {
+	Adress    string `json:"adress"`
+	Name      string `json:"name"`
+	Version   string `json:"version"`
+	Online    float64
+	MaxOnline float64
 }
 
 var config Configuration
+var enviroment Enviroment
 
 /*
-Структура файла конфигурации
+Структура env файла
 
 	-------GENERAL------
-	Port          string
-	gRPCTimeout   time.Duration
-	LoggerLevel   string
+	LoggerLevel string
+	GRPCTimeout time.Duration
+	JwtSecret   string
 	---------DB---------
 	DBUser        string
 	DBPassword    string
@@ -59,28 +76,40 @@ var config Configuration
 	CacheInterval string
 	CacheEXTime   int
 */
-func NewConfig(files ...string) (*Configuration, error) {
+func NewConfig(files ...string) (*Enviroment, *Configuration, error) {
 	err := godotenv.Load(files...)
 	if err != nil {
 		log.Fatalf("Файл .env не найден: %s", err)
 	}
 
-	err = env.Parse(&config)
+	err = env.Parse(&enviroment)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	err = env.Parse(&config.Redis)
+	err = env.Parse(&enviroment.Redis)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	err = env.Parse(&config.DB)
+	err = env.Parse(&enviroment.DB)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return &config, nil
+	configFile, err := os.ReadFile("./config/config.json")
+	if err != nil {
+		log.Fatal("Ошибка при попытке прочитать файл конфигурации:", err)
+		return nil, nil, err
+	}
+
+	err = json.Unmarshal(configFile, &config)
+	if err != nil {
+		log.Fatal("Ошибка при распаковывании файла конфигурации:", err)
+		return nil, nil, err
+	}
+
+	return &enviroment, &config, nil
 }
 
-func GetConfig() *Configuration {
-	return &Configuration{}
+func GetConfig() (*Enviroment, *Configuration) {
+	return &Enviroment{}, &Configuration{}
 }

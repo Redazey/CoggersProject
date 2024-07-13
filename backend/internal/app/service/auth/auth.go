@@ -14,12 +14,12 @@ import (
 )
 
 type Service struct {
-	Cfg *config.Configuration
+	Env *config.Enviroment
 }
 
-func New(cfg *config.Configuration) *Service {
+func New(env *config.Enviroment) *Service {
 	return &Service{
-		Cfg: cfg,
+		Env: env,
 	}
 }
 
@@ -58,7 +58,7 @@ func (s *Service) UserLogin(email string, password string) (string, error) {
 	}
 
 	// генерируем jwt токен и данных юзера для использования в дальнейшем
-	key, err := jwt.Keygen(email, password, s.Cfg.JwtSecret)
+	key, err := jwt.Keygen(email, password, s.Env.JwtSecret)
 	if err != nil {
 		logger.Error("ошибка при генерации токена: ", zap.Error(err))
 		return "", err
@@ -91,38 +91,11 @@ func (s *Service) NewUserRegistration(email string, password string) (string, er
 		return "", err
 	}
 
-	key, err := jwt.Keygen(email, password, s.Cfg.JwtSecret)
+	key, err := jwt.Keygen(email, password, s.Env.JwtSecret)
 	if err != nil {
 		logger.Error("ошибка при генерации токена: ", zap.Error(err))
 		return "", err
 	}
 
 	return key, nil
-}
-
-func (s *Service) IsAdmin(tokenString string) (bool, error) {
-	userData, err := jwt.UserDataFromJwt(tokenString, s.Cfg.JwtSecret)
-	if err != nil {
-		logger.Error("ошибка при распаковки jwt-токена: ", zap.Error(err))
-		return false, err
-	}
-
-	var userDataMap map[string]string
-
-	err = cache.ReadMapCache(fmt.Sprintf("sso_%s_%s", userData["email"], userData["password"]), userDataMap)
-	if err != nil {
-		logger.Error("ошибка при поиске данных в кэше Redis: ", zap.Error(err))
-		return false, err
-	}
-	roleId := userDataMap["roleId"]
-
-	if roleId != "" {
-		if roleId == "1" {
-			return true, nil
-		} else {
-			return false, nil
-		}
-	}
-
-	return false, nil
 }

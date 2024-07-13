@@ -1,8 +1,8 @@
 import {auth} from '../../../protos/auth';
 import { getUUID } from '../../jwt/tokenUtils';
 
-const clientAuth = new auth.AuthServiceClient('http://localhost:8080')
-const uuid = getUUID();
+const clientAuth = new auth.AuthServiceClient('http://localhost:10000')
+const uuid = getUUID().uuid;
 
 export function Registration(
     name: string,

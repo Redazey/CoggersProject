@@ -1,7 +1,7 @@
 package grpcServParser
 
 import (
-	"CoggersProject/internal/app/lib/db"
+	"CoggersProject/config"
 	pb "CoggersProject/pkg/protos/servParser"
 	"context"
 
@@ -12,7 +12,7 @@ import (
 )
 
 type ServParser interface {
-	GetServersInfo() (map[string]db.ServerInfo, error)
+	GetServersInfo() (map[string]config.Servers, error)
 }
 
 type Endpoint struct {
@@ -28,7 +28,6 @@ func (e *Endpoint) GetServersInfo(ctx context.Context, _ *empty.Empty) (*pb.Serv
 	}
 	for key, value := range serversInfo {
 		responseMap[key] = &pb.ServerInfo{
-			Id:        int64(value.Id),
 			Adress:    value.Adress,
 			Name:      value.Name,
 			Version:   value.Version,

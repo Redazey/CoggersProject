@@ -52,26 +52,3 @@ func TokenAuth(tokenString string, secretKey string) (bool, error) {
 
 	return true, nil
 }
-
-// С помощью этой функции мы получаем данные о пользователе из jwt токена
-func UserDataFromJwt(tokenString string, secretKey string) (map[string]string, error) {
-	UserData := make(map[string]string)
-
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		for key, value := range claims {
-			UserData[key] = value.(string)
-		}
-	} else {
-		return nil, errorz.ErrValidation
-	}
-
-	return UserData, nil
-}

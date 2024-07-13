@@ -13,11 +13,11 @@ import (
 type Auth interface {
 	UserLogin(string, string) (string, error)
 	NewUserRegistration(string, string) (string, error)
-	IsAdmin(string) (bool, error)
 }
 
 type Endpoint struct {
-	Auth Auth
+	Auth      Auth
+	SecretKey string
 	pb.UnimplementedAuthServiceServer
 }
 
@@ -61,21 +61,4 @@ func (e *Endpoint) Registration(ctx context.Context, req *pb.RegistrationRequest
 	}
 
 	return &pb.AuthResponse{Key: token}, nil
-}
-
-func (e *Endpoint) IsAdmin(ctx context.Context, req *pb.IsAdminRequest) (*pb.IsAdminResponse, error) {
-	if req.JwtToken == "" {
-		return nil, status.Error(codes.InvalidArgument, "jwtToken пустое значение")
-	}
-
-	isAdmin, err := e.Auth.IsAdmin(req.JwtToken)
-	if err != nil {
-		if errors.Is(err, errorz.ErrUserNotFound) {
-			return nil, status.Error(codes.InvalidArgument, "пользователь с таким именем не существует")
-		}
-
-		return nil, status.Error(codes.Internal, "ошибка проверки прав пользователя")
-	}
-
-	return &pb.IsAdminResponse{IsAdmin: isAdmin}, nil
 }

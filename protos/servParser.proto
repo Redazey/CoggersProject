@@ -9,12 +9,11 @@ message ServParserResponse {
 }
 
 message ServerInfo {
-    int64 Id = 1;
-	string Adress = 2;
-	string Name = 3;
-	string Version = 4;
-	int64 MaxOnline = 5;
-	int64 Online = 6;
+	string Adress = 1;
+	string Name = 2;
+	string Version = 3;
+	int64 MaxOnline = 4;
+	int64 Online = 5;
 }
 
 service ServParserService {

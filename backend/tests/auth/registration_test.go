@@ -25,7 +25,7 @@ func TestAuth(t *testing.T) {
 		RoleId:    1,
 	}
 
-	exceptedKey, _ := jwt.Keygen(RegReq.Email, RegReq.Password, st.Cfg.JwtSecret)
+	exceptedKey, _ := jwt.Keygen(RegReq.Email, RegReq.Password, st.Env.JwtSecret)
 
 	t.Run("NewUserRegistration Test", func(t *testing.T) {
 		response, err := st.AuthClient.Registration(ctx, RegReq)

@@ -95,7 +95,6 @@ export namespace servParser {
     export class ServerInfo extends pb_1.Message {
         #one_of_decls: number[][] = [];
         constructor(data?: any[] | {
-            Id?: number;
             Adress?: string;
             Name?: string;
             Version?: string;
@@ -105,9 +104,6 @@ export namespace servParser {
             super();
             pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
             if (!Array.isArray(data) && typeof data == "object") {
-                if ("Id" in data && data.Id != undefined) {
-                    this.Id = data.Id;
-                }
                 if ("Adress" in data && data.Adress != undefined) {
                     this.Adress = data.Adress;
                 }
@@ -125,44 +121,37 @@ export namespace servParser {
                 }
             }
         }
-        get Id() {
-            return pb_1.Message.getFieldWithDefault(this, 1, 0) as number;
-        }
-        set Id(value: number) {
-            pb_1.Message.setField(this, 1, value);
-        }
         get Adress() {
-            return pb_1.Message.getFieldWithDefault(this, 2, "") as string;
+            return pb_1.Message.getFieldWithDefault(this, 1, "") as string;
         }
         set Adress(value: string) {
-            pb_1.Message.setField(this, 2, value);
+            pb_1.Message.setField(this, 1, value);
         }
         get Name() {
-            return pb_1.Message.getFieldWithDefault(this, 3, "") as string;
+            return pb_1.Message.getFieldWithDefault(this, 2, "") as string;
         }
         set Name(value: string) {
-            pb_1.Message.setField(this, 3, value);
+            pb_1.Message.setField(this, 2, value);
         }
         get Version() {
-            return pb_1.Message.getFieldWithDefault(this, 4, "") as string;
+            return pb_1.Message.getFieldWithDefault(this, 3, "") as string;
         }
         set Version(value: string) {
-            pb_1.Message.setField(this, 4, value);
+            pb_1.Message.setField(this, 3, value);
         }
         get MaxOnline() {
-            return pb_1.Message.getFieldWithDefault(this, 5, 0) as number;
+            return pb_1.Message.getFieldWithDefault(this, 4, 0) as number;
         }
         set MaxOnline(value: number) {
-            pb_1.Message.setField(this, 5, value);
+            pb_1.Message.setField(this, 4, value);
         }
         get Online() {
-            return pb_1.Message.getFieldWithDefault(this, 6, 0) as number;
+            return pb_1.Message.getFieldWithDefault(this, 5, 0) as number;
         }
         set Online(value: number) {
-            pb_1.Message.setField(this, 6, value);
+            pb_1.Message.setField(this, 5, value);
         }
         static fromObject(data: {
-            Id?: number;
             Adress?: string;
             Name?: string;
             Version?: string;
@@ -170,9 +159,6 @@ export namespace servParser {
             Online?: number;
         }): ServerInfo {
             const message = new ServerInfo({});
-            if (data.Id != null) {
-                message.Id = data.Id;
-            }
             if (data.Adress != null) {
                 message.Adress = data.Adress;
             }
@@ -192,16 +178,12 @@ export namespace servParser {
         }
         toObject() {
             const data: {
-                Id?: number;
                 Adress?: string;
                 Name?: string;
                 Version?: string;
                 MaxOnline?: number;
                 Online?: number;
             } = {};
-            if (this.Id != null) {
-                data.Id = this.Id;
-            }
             if (this.Adress != null) {
                 data.Adress = this.Adress;
             }
@@ -223,18 +205,16 @@ export namespace servParser {
         serialize(w: pb_1.BinaryWriter): void;
         serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
             const writer = w || new pb_1.BinaryWriter();
-            if (this.Id != 0)
-                writer.writeInt64(1, this.Id);
             if (this.Adress.length)
-                writer.writeString(2, this.Adress);
+                writer.writeString(1, this.Adress);
             if (this.Name.length)
-                writer.writeString(3, this.Name);
+                writer.writeString(2, this.Name);
             if (this.Version.length)
-                writer.writeString(4, this.Version);
+                writer.writeString(3, this.Version);
             if (this.MaxOnline != 0)
-                writer.writeInt64(5, this.MaxOnline);
+                writer.writeInt64(4, this.MaxOnline);
             if (this.Online != 0)
-                writer.writeInt64(6, this.Online);
+                writer.writeInt64(5, this.Online);
             if (!w)
                 return writer.getResultBuffer();
         }
@@ -245,21 +225,18 @@ export namespace servParser {
                     break;
                 switch (reader.getFieldNumber()) {
                     case 1:
-                        message.Id = reader.readInt64();
-                        break;
-                    case 2:
                         message.Adress = reader.readString();
                         break;
-                    case 3:
+                    case 2:
                         message.Name = reader.readString();
                         break;
-                    case 4:
+                    case 3:
                         message.Version = reader.readString();
                         break;
-                    case 5:
+                    case 4:
                         message.MaxOnline = reader.readInt64();
                         break;
-                    case 6:
+                    case 5:
                         message.Online = reader.readInt64();
                         break;
                     default: reader.skipField();

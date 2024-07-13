@@ -10,7 +10,7 @@ interface ServerCardProps {
 const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
     return (
         <div className="servers__card">
-            <Link to={`/server/${server.Id}`}><h2>{server.Name}</h2></Link>
+            <Link to={`/server/${server.Name}`}><h2>{server.Name}</h2></Link>
             <table>
                 <tr>
                     <td>онлайн:</td>
@@ -37,7 +37,7 @@ const Aside: React.FC = () => {
             const ServParserResponse = await getServersInfo();
             setServerInfo(ServParserResponse);
         } catch (error) {
-            console.error('Error fetching movie:', error);
+            console.error('Error fetching server info:', error);
         }
     }, [new google.protobuf.Empty]);
 
@@ -46,7 +46,7 @@ const Aside: React.FC = () => {
     }, [fetchServersInfo]);
 
     if (!serversInfo) {
-        return <div>Загрузка...</div>
+        return <div>{serversInfo}</div>
     }
 
     return (

@@ -1,8 +1,8 @@
 package servParser
 
 import (
+	"CoggersProject/config"
 	"CoggersProject/internal/app/errorz"
-	"CoggersProject/internal/app/lib/db"
 	rec "CoggersProject/internal/app/lib/recovery"
 	"CoggersProject/pkg/logger"
 	"encoding/json"
@@ -14,10 +14,13 @@ import (
 )
 
 type Service struct {
+	Cfg *config.Configuration
 }
 
-func New() *Service {
-	return &Service{}
+func New(cfg *config.Configuration) *Service {
+	return &Service{
+		Cfg: cfg,
+	}
 }
 
 // Сюда передаем адрес сервера в формате string "https://api.mcsrvstat.us/3/mc.hypixel.net"
@@ -47,19 +50,16 @@ func parseServerInfo(serverAddress string) (map[string]interface{}, error) {
 	return serverData, nil
 }
 
-func (s *Service) GetServersInfo() (map[string]db.ServerInfo, error) {
-	servers, err := db.FetchServersData()
-	if err != nil {
-		logger.Error("ошибка при получении данных о серверах из БД: ", zap.Error(err))
-		return nil, err
-	}
+func (s *Service) GetServersInfo() (map[string]config.Servers, error) {
+	servers := s.Cfg.Servers
+	serversInfo := make(map[string]config.Servers)
 
 	defer rec.Recovery()
 
-	for key, value := range servers {
-		serverInfo, err := parseServerInfo(value.Adress)
+	for key, server := range servers {
+		serverInfo, err := parseServerInfo(server.Adress)
 		if err != nil {
-			logStr := fmt.Sprintf("не удалось получить данные о сервере %s, ошибка: ", key)
+			logStr := fmt.Sprintf("не удалось получить данные о сервере %s, ошибка: ", server.Name)
 			logger.Error(logStr, zap.Error(err))
 			continue
 		}
@@ -73,14 +73,14 @@ func (s *Service) GetServersInfo() (map[string]db.ServerInfo, error) {
 
 		playersData := serverInfo["players"].(map[string]interface{})
 
-		value.Online = playersData["online"].(float64)
-		value.MaxOnline = playersData["max"].(float64)
-		servers[key] = value
+		server.Online = playersData["online"].(float64)
+		server.MaxOnline = playersData["max"].(float64)
+		serversInfo[server.Name] = server
 	}
 
 	if len(servers) == 0 {
 		return nil, errorz.ErrServerIsNotResponse
 	}
 
-	return servers, nil
+	return serversInfo, nil
 }

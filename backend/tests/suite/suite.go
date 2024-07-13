@@ -18,7 +18,7 @@ import (
 
 type Suite struct {
 	*testing.T
-	Cfg *config.Configuration
+	Env *config.Enviroment
 	Rdb *redis.Client
 	Db  *sqlx.DB
 
@@ -32,18 +32,18 @@ func New(t *testing.T) (context.Context, *Suite) {
 	t.Parallel() // Разрешаем параллельный запуск тестов
 
 	// Читаем конфиг из файла
-	cfg, err := config.NewConfig("../../.env")
+	env, _, err := config.NewConfig("../../.env")
 	if err != nil {
 		t.Fatalf("ошибка при инициализации файла конфигурации: %s", err)
 	}
 
-	err = db.Init(cfg.DB.DBUser, cfg.DB.DBPassword, cfg.DB.DBHost, cfg.DB.DBName)
+	err = db.Init(env.DB.DBUser, env.DB.DBPassword, env.DB.DBHost, env.DB.DBName)
 	if err != nil {
 		t.Fatalf("ошибка при инициализации БД: %s", err)
 	}
 
 	// Основной родительский контекст
-	ctx, cancelCtx := context.WithTimeout(context.Background(), cfg.GRPCTimeout)
+	ctx, cancelCtx := context.WithTimeout(context.Background(), env.GRPCTimeout)
 
 	// Когда тесты пройдут, закрываем контекст
 	t.Cleanup(func() {
@@ -53,9 +53,9 @@ func New(t *testing.T) (context.Context, *Suite) {
 
 	// Создаем кеш
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     cfg.Redis.RedisAddr + ":" + cfg.Redis.RedisPort,
-		Password: cfg.Redis.RedisPassword,
-		DB:       cfg.Redis.RedisDBId,
+		Addr:     env.Redis.RedisAddr + ":" + env.Redis.RedisPort,
+		Password: env.Redis.RedisPassword,
+		DB:       env.Redis.RedisDBId,
 	})
 	err = rdb.Ping(ctx).Err()
 	if err != nil {
@@ -74,7 +74,7 @@ func New(t *testing.T) (context.Context, *Suite) {
 
 	return ctx, &Suite{
 		T:                t,
-		Cfg:              cfg,
+		Env:              env,
 		Rdb:              rdb,
 		Db:               db.Conn,
 		AuthClient:       authClient,

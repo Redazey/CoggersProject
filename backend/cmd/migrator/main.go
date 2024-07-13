@@ -18,12 +18,12 @@ func main() {
 	flag.StringVar(&migrationsPath, "migrations-path", "", "path to migrations")
 	flag.Parse()
 
-	cfg, err := config.NewConfig()
+	env, _, err := config.NewConfig()
 	if err != nil {
 		log.Fatalf("Ошибка при инициализации конфига: %s", err)
 	}
 
-	connStr := fmt.Sprintf("postgresql://%s:%s@%s:5432/%s?sslmode=disable", cfg.DB.DBUser, cfg.DB.DBPassword, cfg.DB.DBHost, cfg.DB.DBName)
+	connStr := fmt.Sprintf("postgresql://%s:%s@%s:5432/%s?sslmode=disable", env.DB.DBUser, env.DB.DBPassword, env.DB.DBHost, env.DB.DBName)
 
 	m, err := migrate.New(
 		"file://"+migrationsPath,

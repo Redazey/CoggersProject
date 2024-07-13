@@ -22,7 +22,7 @@ func TestLogin(t *testing.T) {
 		Password: UserData["password"].(string),
 	}
 
-	exceptedKey, _ := jwt.Keygen(loginReq.Email, loginReq.Password, st.Cfg.JwtSecret)
+	exceptedKey, _ := jwt.Keygen(loginReq.Email, loginReq.Password, st.Env.JwtSecret)
 
 	t.Run("UserLogin Test", func(t *testing.T) {
 		response, err := st.AuthClient.Login(ctx, loginReq)

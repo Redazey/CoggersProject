@@ -10,140 +10,6 @@ import * as pb_1 from "google-protobuf";
 import * as grpc_1 from "@grpc/grpc-js";
 import * as grpc_web_1 from "grpc-web";
 export namespace auth {
-    export class IsAdminRequest extends pb_1.Message {
-        #one_of_decls: number[][] = [];
-        constructor(data?: any[] | {
-            jwtToken?: string;
-        }) {
-            super();
-            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
-            if (!Array.isArray(data) && typeof data == "object") {
-                if ("jwtToken" in data && data.jwtToken != undefined) {
-                    this.jwtToken = data.jwtToken;
-                }
-            }
-        }
-        get jwtToken() {
-            return pb_1.Message.getFieldWithDefault(this, 1, "") as string;
-        }
-        set jwtToken(value: string) {
-            pb_1.Message.setField(this, 1, value);
-        }
-        static fromObject(data: {
-            jwtToken?: string;
-        }): IsAdminRequest {
-            const message = new IsAdminRequest({});
-            if (data.jwtToken != null) {
-                message.jwtToken = data.jwtToken;
-            }
-            return message;
-        }
-        toObject() {
-            const data: {
-                jwtToken?: string;
-            } = {};
-            if (this.jwtToken != null) {
-                data.jwtToken = this.jwtToken;
-            }
-            return data;
-        }
-        serialize(): Uint8Array;
-        serialize(w: pb_1.BinaryWriter): void;
-        serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
-            const writer = w || new pb_1.BinaryWriter();
-            if (this.jwtToken.length)
-                writer.writeString(1, this.jwtToken);
-            if (!w)
-                return writer.getResultBuffer();
-        }
-        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): IsAdminRequest {
-            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new IsAdminRequest();
-            while (reader.nextField()) {
-                if (reader.isEndGroup())
-                    break;
-                switch (reader.getFieldNumber()) {
-                    case 1:
-                        message.jwtToken = reader.readString();
-                        break;
-                    default: reader.skipField();
-                }
-            }
-            return message;
-        }
-        serializeBinary(): Uint8Array {
-            return this.serialize();
-        }
-        static deserializeBinary(bytes: Uint8Array): IsAdminRequest {
-            return IsAdminRequest.deserialize(bytes);
-        }
-    }
-    export class IsAdminResponse extends pb_1.Message {
-        #one_of_decls: number[][] = [];
-        constructor(data?: any[] | {
-            isAdmin?: boolean;
-        }) {
-            super();
-            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
-            if (!Array.isArray(data) && typeof data == "object") {
-                if ("isAdmin" in data && data.isAdmin != undefined) {
-                    this.isAdmin = data.isAdmin;
-                }
-            }
-        }
-        get isAdmin() {
-            return pb_1.Message.getFieldWithDefault(this, 1, false) as boolean;
-        }
-        set isAdmin(value: boolean) {
-            pb_1.Message.setField(this, 1, value);
-        }
-        static fromObject(data: {
-            isAdmin?: boolean;
-        }): IsAdminResponse {
-            const message = new IsAdminResponse({});
-            if (data.isAdmin != null) {
-                message.isAdmin = data.isAdmin;
-            }
-            return message;
-        }
-        toObject() {
-            const data: {
-                isAdmin?: boolean;
-            } = {};
-            if (this.isAdmin != null) {
-                data.isAdmin = this.isAdmin;
-            }
-            return data;
-        }
-        serialize(): Uint8Array;
-        serialize(w: pb_1.BinaryWriter): void;
-        serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
-            const writer = w || new pb_1.BinaryWriter();
-            if (this.isAdmin != false)
-                writer.writeBool(1, this.isAdmin);
-            if (!w)
-                return writer.getResultBuffer();
-        }
-        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): IsAdminResponse {
-            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new IsAdminResponse();
-            while (reader.nextField()) {
-                if (reader.isEndGroup())
-                    break;
-                switch (reader.getFieldNumber()) {
-                    case 1:
-                        message.isAdmin = reader.readBool();
-                        break;
-                    default: reader.skipField();
-                }
-            }
-            return message;
-        }
-        serializeBinary(): Uint8Array {
-            return this.serialize();
-        }
-        static deserializeBinary(bytes: Uint8Array): IsAdminResponse {
-            return IsAdminResponse.deserialize(bytes);
-        }
-    }
     export class RegistrationRequest extends pb_1.Message {
         #one_of_decls: number[][] = [];
         constructor(data?: any[] | {
@@ -525,21 +391,11 @@ export namespace auth {
                 requestDeserialize: (bytes: Buffer) => RegistrationRequest.deserialize(new Uint8Array(bytes)),
                 responseSerialize: (message: AuthResponse) => Buffer.from(message.serialize()),
                 responseDeserialize: (bytes: Buffer) => AuthResponse.deserialize(new Uint8Array(bytes))
-            },
-            IsAdmin: {
-                path: "/auth.AuthService/IsAdmin",
-                requestStream: false,
-                responseStream: false,
-                requestSerialize: (message: IsAdminRequest) => Buffer.from(message.serialize()),
-                requestDeserialize: (bytes: Buffer) => IsAdminRequest.deserialize(new Uint8Array(bytes)),
-                responseSerialize: (message: IsAdminResponse) => Buffer.from(message.serialize()),
-                responseDeserialize: (bytes: Buffer) => IsAdminResponse.deserialize(new Uint8Array(bytes))
             }
         };
         [method: string]: grpc_1.UntypedHandleCall;
         abstract Login(call: grpc_1.ServerUnaryCall<LoginRequest, AuthResponse>, callback: grpc_1.sendUnaryData<AuthResponse>): void;
         abstract Registration(call: grpc_1.ServerUnaryCall<RegistrationRequest, AuthResponse>, callback: grpc_1.sendUnaryData<AuthResponse>): void;
-        abstract IsAdmin(call: grpc_1.ServerUnaryCall<IsAdminRequest, IsAdminResponse>, callback: grpc_1.sendUnaryData<IsAdminResponse>): void;
     }
     export class AuthServiceClient {
         private _address: string;
@@ -558,10 +414,6 @@ export namespace auth {
         private static Registration = new grpc_web_1.MethodDescriptor<RegistrationRequest, AuthResponse>("/auth.AuthService/Registration", grpc_web_1.MethodType.UNARY, RegistrationRequest, AuthResponse, (message: RegistrationRequest) => message.serialize(), AuthResponse.deserialize);
         Registration(message: RegistrationRequest, metadata: grpc_web_1.Metadata | null, callback: (error: grpc_web_1.RpcError, response: AuthResponse) => void) {
             return this._client.rpcCall<RegistrationRequest, AuthResponse>(this._address + "/auth.AuthService/Registration", message, metadata || {}, AuthServiceClient.Registration, callback);
-        }
-        private static IsAdmin = new grpc_web_1.MethodDescriptor<IsAdminRequest, IsAdminResponse>("/auth.AuthService/IsAdmin", grpc_web_1.MethodType.UNARY, IsAdminRequest, IsAdminResponse, (message: IsAdminRequest) => message.serialize(), IsAdminResponse.deserialize);
-        IsAdmin(message: IsAdminRequest, metadata: grpc_web_1.Metadata | null, callback: (error: grpc_web_1.RpcError, response: IsAdminResponse) => void) {
-            return this._client.rpcCall<IsAdminRequest, IsAdminResponse>(this._address + "/auth.AuthService/IsAdmin", message, metadata || {}, AuthServiceClient.IsAdmin, callback);
         }
     }
 }

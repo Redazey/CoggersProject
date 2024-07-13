@@ -2,11 +2,10 @@ import {servParser} from '../../../protos/servParser';
 import { google } from '../../../protos/google/protobuf/empty';
 import { getUUID } from '../../jwt/tokenUtils';
 
-const clientServParser = new servParser.ServParserServiceClient('http://localhost:8080');
-const uuid = getUUID();
+const clientServParser = new servParser.ServParserServiceClient('http://localhost:10000');
+const uuid = getUUID().uuid;
 
 export interface ServerInfo {
-    Id: number,
 	Adress: string,
 	Name: string,
 	Version: string,

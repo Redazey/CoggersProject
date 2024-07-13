@@ -3,14 +3,6 @@ package auth;
 option go_package = "./auth";
 import "google/api/annotations.proto";
 
-message IsAdminRequest {
-    string jwtToken = 1;
-}
-
-message IsAdminResponse {
-    bool isAdmin = 1;
-}
-
 message RegistrationRequest {
     string name = 1;
     string email = 2;
@@ -39,11 +31,6 @@ service AuthService {
     rpc Registration(RegistrationRequest) returns (AuthResponse) {
         option (google.api.http) = {
             get: "/auth/registration"
-        };
-    }
-    rpc IsAdmin(IsAdminRequest) returns (IsAdminResponse) {
-        option (google.api.http) = {
-            get: "/auth/IsAdmin"
         };
     }
 }

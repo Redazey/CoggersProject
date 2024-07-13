@@ -4,45 +4,48 @@
 version: "3"  
 
 tasks:  
-  default: # Если не указать конкретную команду, будут выполнены дефолтные
-    cmds:  
-      - task: build
-  test:
-    cmds:
-      - cd backend && go test -race -count 1 ./...
+    default: # Если не указать конкретную команду, будут выполнены дефолтные
+        cmds:  
+        - task: build
+    test:
+        cmds:
+        - cd backend && CGO_ENABLED=1 go test -race -count 1 ./...
 
-  cover:
-    cmds:
-      - cd backend
-      - go test -short -race -count 1 -coverprofile=coverage.out ./...
-      - go tool cover -html=coverage.out
-      - cmd /c rmdir /s /q backend/coverage.out
+    cover:
+        cmds:
+        - cd backend
+        - CGO_ENABLED=1 go test -short -race -count 1 -coverprofile=coverage.out ./...
+        - go tool cover -html=coverage.out
+        - cmd /c rmdir /s /q backend/coverage.out
 
-  build:
-    cmds:
-      - task: build-backend
-      - task: build-frontend
+    build:
+        cmds:
+        - task: build-backend
+        - task: build-frontend
 
-  build-backend:
-    cmds:
-      - protoc -I googleapis -I protos protos/*.proto --go_out=backend/pkg/protos/. --go-grpc_out=backend/pkg/protos/.
-      - cd backend/build && cmd /c del *
+    build-backend:
+        cmds:
+        - protoc -I googleapis -I protos protos/*.proto --go_out=backend/pkg/protos/. --go-grpc_out=backend/pkg/protos/.
+        - cd backend/build && cmd /c del *
 
-      - set GOOS=windows
-      - set GOARCH=amd64
-      - set CGO_ENABLED=0
+        - set GOOS=windows
+        - set GOARCH=amd64
+        - set CGO_ENABLED=0
 
-      - cd backend && go build -o build/CoggersProject_amd64.exe ./cmd/main/main.go
+        - cd backend && go build -o build/CoggersProject_amd64.exe ./cmd/main/main.go
 
 
-  build-frontend:
-    cmds:
-      - protoc -I googleapis -I protos protos/*.proto --ts_opt=target=web
-       --ts_out=frontend/src/protos/.
-      - sed -i '1i/* eslint-disable */\n// @ts-nocheck' frontend/src/protos/google/api/*.ts
-      - sed -i '1i/* eslint-disable */\n// @ts-nocheck' frontend/src/protos/google/protobuf/*.ts
-      - sed -i '1i/* eslint-disable */\n// @ts-nocheck' frontend/src/protos/*.ts
-      - cmd /c del sed*
-      - cd frontend && npm run build
+    build-frontend:
+        cmds:
+        - protoc -I googleapis -I protos protos/*.proto --ts_opt=target=web --ts_out=frontend/src/protos/.
+        - sed -i '1i/* eslint-disable */\n// @ts-nocheck' frontend/src/protos/google/api/*.ts
+        - sed -i '1i/* eslint-disable */\n// @ts-nocheck' frontend/src/protos/google/protobuf/*.ts
+        - sed -i '1i/* eslint-disable */\n// @ts-nocheck' frontend/src/protos/*.ts
+        - cmd /c del sed*
+        - cd frontend && npm run build
+
+    migrator:
+        cmds:
+        - cd backend && go run cmd/migrator/main.go --migrations-path=./migrations
 
       
