@@ -1,0 +1,9 @@
+@import "../base/variables";
+aside {
+    position: fixed;
+    width: 15%;
+    background-color: $secondary-color;
+    border-radius: 20px;
+    min-height: fit-content;
+    padding: 1rem;
+}

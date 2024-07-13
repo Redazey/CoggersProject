@@ -1,0 +1,50 @@
+@import "../base/variables";
+header {
+    background-color: $secondary-color;
+    padding: 10px 40px; 
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    .header__logo {
+        display: inline-flex;
+        
+        a img {
+            height: 50px;
+        }
+
+        h3 {
+            display: block;
+            margin: auto 0 auto 20px;
+        }
+    }
+
+    nav {
+        display: inline-flex;
+
+        a { 
+            color: $primary-color;
+            display: inline-block;
+            background-color: $thirdy-color;
+            margin: 0 40px 0 0;
+            padding: 15px 40px;
+            border-radius: 20px;
+            transition: transform 0.3s;
+        
+            &:hover { 
+                transform: translateY(-5px);
+            }
+        
+            /* Стили для больших экранов (например, ширина >= 768px) */
+            @media screen and (min-width: 768px) {
+                display: block;
+            }
+        
+            /* Стили для маленьких экранов (например, ширина < 768px) */
+            @media screen and (max-width: 767px) {
+                display: none;
+            }
+        }
+    }
+}

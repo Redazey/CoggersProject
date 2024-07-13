@@ -8,6 +8,6 @@ const ServerItem: React.FC = () => {
             <Link to="#">Войти</Link>
         </>
     )
-};я
+};
 
 export default ServerItem;

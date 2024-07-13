@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ScrollRotate from "./scripts/scroll-rotate"
-import logoImg from './assets/images/logo.png'
 import contentImg from './assets/images/content.png'
-import Navigation from "./components/Navigation"
-import Footer from "./components/Footer"
-import ServerItem from "./components/ServerItem"
+import Aside from "./layouts/Aside"
+import Header from "./layouts/Header"
+import Footer from "./layouts/Footer"
+import ServerItem from "./pages/ServerItem"
 import Home from "./pages/Home"
 import NewsItem from "./pages/NewsItem"
 
@@ -20,14 +20,7 @@ const App: React.FC = () => {
             <Router>
                 <div className="container">
                     <header>
-                        <div className="header__logo">
-                            <Link to="#"><img src={logoImg} alt="logo"/></Link>
-                            <h3>Coggers Project</h3>
-                        </div>
-
-                        <nav>
-                            <Navigation />
-                        </nav>
+                        <Header />
                     </header>
 
                     <main>
@@ -36,7 +29,9 @@ const App: React.FC = () => {
                         </div>
 
                         <div className="main__middle">
-                            <ServerItem />
+                            <aside>
+                                <Aside />
+                            </aside>
                             <Routes>
                                 {/* Панель с серверами */}
                                 <Route path="/server/id/:id" element={<ServerItem />} />

@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+    coggersPg:
+        image: postgres:latest
+        container_name: coggersPg
+        environment:
+            - POSTGRES_USER=backend!
+            - POSTGRES_PASSWORD=backend1q!
+            - POSTGRES_DB=CoggersProjectPG
+        ports:
+            - "5432:5432"
+
+    coggersRedis:
+        image: redis
+        container_name: coggersRedis
+        environment:
+            - REDIS_PASSWORD=backend!
+        ports:
+            - "6379:6379"
+
+    envoy:
+        image: envoyproxy/envoy:v1.30-latest
+        container_name: envoy
+        network_mode: host
+        ports:
+            - "10000:10000"
+            - "9901:9901"
+        volumes:
+            - ./envoy.yaml:/etc/envoy/envoy.yaml
+
+    backend:
+        container_name: backend
+        restart: unless-stopped
+        build:
+            context: backend/
+            target: dev
+            dockerfile: Dockerfile
+        network_mode: host
+        volumes:
+            - ./backend:/app
+        ports:
+            - "8080:8080"

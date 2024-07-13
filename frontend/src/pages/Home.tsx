@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import '../assets/styles/pages/Home/Home.min.css';
 
 const Home: React.FC = () => {
-    const [news, setNews] = useState<any[]>([]);
+    const [news] = useState<any[]>([]);
 
     return (
         <>
