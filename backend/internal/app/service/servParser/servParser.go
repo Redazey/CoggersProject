@@ -44,6 +44,9 @@ func parseServerInfo(serverAddress string) (map[string]interface{}, error) {
 	err = json.Unmarshal(serviceResponse, &serverData)
 	if err != nil {
 		logger.Error("произошла ошибка при пробразовании из json формата: ", zap.Error(err))
+
+		logStr := fmt.Sprintf("содержание response: %s", serviceResponse)
+		logger.Debug(logStr)
 		return nil, err
 	}
 

@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useCallback} from "react";
 import { Link } from 'react-router-dom';
+import {RpcError} from "grpc-web";
 import {ServerInfo, getServersInfo} from '../components/gRPC/servParser/grpcServParser'
-import { google } from '../protos/google/protobuf/empty';
 
 interface ServerCardProps {
     server: ServerInfo;
@@ -13,15 +13,15 @@ const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
             <Link to={`/server/${server.Name}`}><h2>{server.Name}</h2></Link>
             <table>
                 <tr>
-                    <td>онлайн:</td>
+                    <td>Онлайн:</td>
                     <td>{server.Online}/{server.MaxOnline}</td>
                 </tr>
                 <tr>
-                    <td>адрес:</td>
+                    <td>Адрес:</td>
                     <td>{server.Adress}</td>
                 </tr>
                 <tr>
-                    <td>версия:</td>
+                    <td>Версия:</td>
                     <td>{server.Version}</td>
                 </tr>
             </table>
@@ -31,19 +31,44 @@ const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
 
 const Aside: React.FC = () => {
     const [serversInfo, setServerInfo] = useState<Map<string, ServerInfo> | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [end, setEnd] = useState(false);
 
     const fetchServersInfo = useCallback(async () => {
-        try {
-            const ServParserResponse = await getServersInfo();
-            setServerInfo(ServParserResponse);
-        } catch (error) {
-            console.error('Error fetching server info:', error);
+        if (!loading && !end) {
+            setLoading(true);
+            try {
+                const ServParserResponse = await getServersInfo();
+                setServerInfo(ServParserResponse);
+                console.log("запуск функции")
+            } catch (error) {
+                if (error instanceof RpcError) {
+                    if (error.code === 5) {
+                        setEnd(true);
+                    } else {
+                        console.error('Error fetching servers info:', error);
+                    }
+                } else {
+                    console.error('Unexpected error:', error);
+                }
+            } finally {
+                setLoading(false);
+            }
         }
-    }, [new google.protobuf.Empty]);
+    }, [loading, end]);
 
     useEffect(() => {
         fetchServersInfo();
-    }, [fetchServersInfo]);
+
+        const interval = setInterval(() => {
+            fetchServersInfo();
+        }, 60000);
+
+        // Очистка интервала при размонтировании компонента
+        return () => {
+            clearInterval(interval);
+        };
+    }, []);
 
     if (!serversInfo) {
         return <div>{serversInfo}</div>
@@ -54,7 +79,7 @@ const Aside: React.FC = () => {
             <div className="servers">
                 {Array.from(serversInfo).map(([key, value]) => (
                     <ServerCard key={key} server={value}/>
-                ))};
+                ))}
             </div>
         </>
     );
