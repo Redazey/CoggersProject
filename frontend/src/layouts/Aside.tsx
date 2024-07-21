@@ -2,35 +2,39 @@ import React, {useState, useEffect, useCallback} from "react";
 import { Link } from 'react-router-dom';
 import {RpcError} from "grpc-web";
 import {ServerInfo, getServersInfo} from '../components/gRPC/servParser/grpcServParser'
+import serversConfig from '../config/servers.json'
 
 interface ServerCardProps {
     server: ServerInfo;
 }
 
-const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
+const ServerCardLoad: React.FC<ServerCardProps> = ({ server }) => {
+    console.log(server)
     return (
         <div className="servers__card">
             <Link to={`/server/${server.Name}`}><h2>{server.Name}</h2></Link>
             <table>
-                <tr>
-                    <td>Онлайн:</td>
-                    <td>{server.Online}/{server.MaxOnline}</td>
-                </tr>
-                <tr>
-                    <td>Адрес:</td>
-                    <td>{server.Adress}</td>
-                </tr>
-                <tr>
-                    <td>Версия:</td>
-                    <td>{server.Version}</td>
-                </tr>
+                <tbody>
+                    <tr>
+                        <td>Онлайн:</td>
+                        <td>{server.Online}/{server.MaxOnline}</td>
+                    </tr>
+                    <tr>
+                        <td>Адрес:</td>
+                        <td>{server.Adress}</td>
+                    </tr>
+                    <tr>
+                        <td>Версия:</td>
+                        <td>{server.Version}</td>
+                    </tr>
+                </tbody>
             </table>
         </div>
     );
 }
 
 const Aside: React.FC = () => {
-    const [serversInfo, setServerInfo] = useState<Map<string, ServerInfo> | null>(null);
+    const [serversInfo, setServerInfo] = useState<ServerInfo[] | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [end, setEnd] = useState(false);
 
@@ -40,7 +44,6 @@ const Aside: React.FC = () => {
             try {
                 const ServParserResponse = await getServersInfo();
                 setServerInfo(ServParserResponse);
-                console.log("запуск функции")
             } catch (error) {
                 if (error instanceof RpcError) {
                     if (error.code === 5) {
@@ -58,11 +61,12 @@ const Aside: React.FC = () => {
     }, [loading, end]);
 
     useEffect(() => {
+        setServerInfo(serversConfig.servers);
         fetchServersInfo();
 
         const interval = setInterval(() => {
             fetchServersInfo();
-        }, 60000);
+        }, 5000);
 
         // Очистка интервала при размонтировании компонента
         return () => {
@@ -76,8 +80,8 @@ const Aside: React.FC = () => {
 
     return (
         <>
-            {Array.from(serversInfo).map(([key, value]) => (
-                <ServerCard key={key} server={value}/>
+            {serversInfo.map((value) => (
+                <ServerCardLoad server={value}/>
             ))}
         </>
     );

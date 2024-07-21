@@ -13,7 +13,7 @@ export interface ServerInfo {
 	Online: number,
 }
 
-export function getServersInfo(): Promise<Map<string, ServerInfo>> {
+export function getServersInfo(): Promise<ServerInfo[]> {
     return new Promise((resolve, reject) => {
         clientServParser.GetServersInfo(new google.protobuf.Empty, {"uuid": uuid}, (err, response) => {
             if (err) {

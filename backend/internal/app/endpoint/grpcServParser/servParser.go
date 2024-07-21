@@ -12,7 +12,7 @@ import (
 )
 
 type ServParser interface {
-	GetServersInfo() (map[string]config.Servers, error)
+	GetServersInfo() ([]config.Servers, error)
 }
 
 type Endpoint struct {
@@ -21,20 +21,21 @@ type Endpoint struct {
 }
 
 func (e *Endpoint) GetServersInfo(ctx context.Context, _ *empty.Empty) (*pb.ServParserResponse, error) {
-	responseMap := make(map[string]*pb.ServerInfo)
+	responseList := []*pb.ServerInfo{}
 	serversInfo, err := e.Parser.GetServersInfo()
+
 	if err != nil {
 		return nil, status.Error(codes.Internal, "ошибка получения информации о серверах")
 	}
-	for key, value := range serversInfo {
-		responseMap[key] = &pb.ServerInfo{
+	for _, value := range serversInfo {
+		responseList = append(responseList, &pb.ServerInfo{
 			Adress:    value.Adress,
 			Name:      value.Name,
 			Version:   value.Version,
 			MaxOnline: int64(value.MaxOnline),
 			Online:    int64(value.Online),
-		}
+		})
 	}
 
-	return &pb.ServParserResponse{ServersInfo: responseMap}, nil
+	return &pb.ServParserResponse{ServersInfo: responseList}, nil
 }

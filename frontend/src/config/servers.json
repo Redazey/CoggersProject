@@ -1,0 +1,39 @@
+{
+    "servers": [
+        {
+            "Name": "Hypixel",
+            "Adress": "mc.hypixel.net",
+            "Version": "<3",
+            "Online": 0,
+            "MaxOnline": 0
+        },
+        {
+            "Name": "LuckyWorld",
+            "Adress": "mclucky.net",
+            "Version": "1.12-1.20",
+            "Online": 0,
+            "MaxOnline": 0
+        },
+        {
+            "Name": "ETERNITY",
+            "Adress": "ETTY.SU",
+            "Version": "1.12-1.20",
+            "Online": 0,
+            "MaxOnline": 0
+        },
+        {
+            "Name": "LastMine",
+            "Adress": "lastmc.org",
+            "Version": "1.12-1.20",
+            "Online": 0,
+            "MaxOnline": 0
+        },
+        {
+            "Name": "PlayMine",
+            "Adress": "mc.playmine.org",
+            "Version": "1.12-1.20",
+            "Online": 0,
+            "MaxOnline": 0
+        }
+    ]
+}

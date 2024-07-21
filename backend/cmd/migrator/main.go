@@ -18,7 +18,7 @@ func main() {
 	flag.StringVar(&migrationsPath, "migrations-path", "", "path to migrations")
 	flag.Parse()
 
-	env, _, err := config.NewConfig()
+	env, err := config.NewEnv()
 	if err != nil {
 		log.Fatalf("Ошибка при инициализации конфига: %s", err)
 	}

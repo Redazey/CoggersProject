@@ -45,9 +45,9 @@ type Configuration struct {
 }
 
 type Servers struct {
-	Adress    string `json:"adress"`
-	Name      string `json:"name"`
-	Version   string `json:"version"`
+	Adress    string `json:"Adress"`
+	Name      string `json:"Name"`
+	Version   string `json:"Version"`
 	Online    float64
 	MaxOnline float64
 }
@@ -76,40 +76,48 @@ var enviroment Enviroment
 	CacheInterval string
 	CacheEXTime   int
 */
-func NewConfig(files ...string) (*Enviroment, *Configuration, error) {
-	err := godotenv.Load(files...)
+func NewEnv(envPath ...string) (*Enviroment, error) {
+	err := godotenv.Load(envPath...)
 	if err != nil {
 		log.Fatalf("Файл .env не найден: %s", err)
 	}
 
 	err = env.Parse(&enviroment)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	err = env.Parse(&enviroment.Redis)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	err = env.Parse(&enviroment.DB)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	configFile, err := os.ReadFile("./config/config.json")
+	return &enviroment, nil
+}
+
+func NewConfig(cfgPath string) (*Configuration, error) {
+	configFile, err := os.ReadFile(cfgPath)
 	if err != nil {
 		log.Fatal("Ошибка при попытке прочитать файл конфигурации:", err)
-		return nil, nil, err
+		return nil, err
 	}
 
 	err = json.Unmarshal(configFile, &config)
 	if err != nil {
 		log.Fatal("Ошибка при распаковывании файла конфигурации:", err)
-		return nil, nil, err
+		return nil, err
 	}
 
-	return &enviroment, &config, nil
+	return &config, nil
 }
 
-func GetConfig() (*Enviroment, *Configuration) {
-	return &Enviroment{}, &Configuration{}
+func GetEnv() *Enviroment {
+	return &Enviroment{}
+}
+
+func GetConfig() *Configuration {
+	return &Configuration{}
 }

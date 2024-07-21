@@ -1,13 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ScrollRotate from "./scripts/scroll-rotate"
 import contentImg from './assets/images/content.png'
 import Aside from "./layouts/Aside"
 import Header from "./layouts/Header"
 import Footer from "./layouts/Footer"
-import ServerItem from "./pages/ServerItem"
-import Home from "./pages/Home"
-import NewsItem from "./pages/NewsItem"
+
+const Home = lazy(() => import("./pages/Home"));
+const ServerItem = lazy(() => import("./pages/ServerItem"));
+const NewsItem = lazy(() => import("./pages/NewsItem"));
 
 const App: React.FC = () => {
 

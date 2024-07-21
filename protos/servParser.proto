@@ -5,7 +5,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
 message ServParserResponse {
-    map<string, ServerInfo> serversInfo = 1;
+    repeated ServerInfo serversInfo = 1;
 }
 
 message ServerInfo {

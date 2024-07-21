@@ -28,7 +28,12 @@ type App struct {
 
 func New() (*App, error) {
 	// инициализируем конфиг, логгер и кэш
-	env, cfg, err := config.NewConfig()
+	env, err := config.NewEnv()
+	if err != nil {
+		log.Fatalf("Ошибка при попытке спарсить .env файл в структуру: %v", err)
+	}
+
+	cfg, err := config.NewConfig("./config/servers.json")
 	if err != nil {
 		log.Fatalf("Ошибка при попытке спарсить .env файл в структуру: %v", err)
 	}

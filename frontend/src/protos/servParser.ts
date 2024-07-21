@@ -14,43 +14,37 @@ export namespace servParser {
     export class ServParserResponse extends pb_1.Message {
         #one_of_decls: number[][] = [];
         constructor(data?: any[] | {
-            serversInfo?: Map<string, ServerInfo>;
+            serversInfo?: ServerInfo[];
         }) {
             super();
-            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [1], this.#one_of_decls);
             if (!Array.isArray(data) && typeof data == "object") {
                 if ("serversInfo" in data && data.serversInfo != undefined) {
                     this.serversInfo = data.serversInfo;
                 }
             }
-            if (!this.serversInfo)
-                this.serversInfo = new Map();
         }
         get serversInfo() {
-            return pb_1.Message.getField(this, 1) as any as Map<string, ServerInfo>;
+            return pb_1.Message.getRepeatedWrapperField(this, ServerInfo, 1) as ServerInfo[];
         }
-        set serversInfo(value: Map<string, ServerInfo>) {
-            pb_1.Message.setField(this, 1, value as any);
+        set serversInfo(value: ServerInfo[]) {
+            pb_1.Message.setRepeatedWrapperField(this, 1, value);
         }
         static fromObject(data: {
-            serversInfo?: {
-                [key: string]: ReturnType<typeof ServerInfo.prototype.toObject>;
-            };
+            serversInfo?: ReturnType<typeof ServerInfo.prototype.toObject>[];
         }): ServParserResponse {
             const message = new ServParserResponse({});
-            if (typeof data.serversInfo == "object") {
-                message.serversInfo = new Map(Object.entries(data.serversInfo).map(([key, value]) => [key, ServerInfo.fromObject(value)]));
+            if (data.serversInfo != null) {
+                message.serversInfo = data.serversInfo.map(item => ServerInfo.fromObject(item));
             }
             return message;
         }
         toObject() {
             const data: {
-                serversInfo?: {
-                    [key: string]: ReturnType<typeof ServerInfo.prototype.toObject>;
-                };
+                serversInfo?: ReturnType<typeof ServerInfo.prototype.toObject>[];
             } = {};
             if (this.serversInfo != null) {
-                data.serversInfo = (Object.fromEntries)((Array.from)(this.serversInfo).map(([key, value]) => [key, value.toObject()]));
+                data.serversInfo = this.serversInfo.map((item: ServerInfo) => item.toObject());
             }
             return data;
         }
@@ -58,12 +52,8 @@ export namespace servParser {
         serialize(w: pb_1.BinaryWriter): void;
         serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
             const writer = w || new pb_1.BinaryWriter();
-            for (const [key, value] of this.serversInfo) {
-                writer.writeMessage(1, this.serversInfo, () => {
-                    writer.writeString(1, key);
-                    writer.writeMessage(2, value, () => value.serialize(writer));
-                });
-            }
+            if (this.serversInfo.length)
+                writer.writeRepeatedMessage(1, this.serversInfo, (item: ServerInfo) => item.serialize(writer));
             if (!w)
                 return writer.getResultBuffer();
         }
@@ -74,11 +64,7 @@ export namespace servParser {
                     break;
                 switch (reader.getFieldNumber()) {
                     case 1:
-                        reader.readMessage(message, () => pb_1.Map.deserializeBinary(message.serversInfo as any, reader, reader.readString, () => {
-                            let value;
-                            reader.readMessage(message, () => value = ServerInfo.deserialize(reader));
-                            return value;
-                        }));
+                        reader.readMessage(message.serversInfo, () => pb_1.Message.addToRepeatedWrapperField(message, 1, ServerInfo.deserialize(reader), ServerInfo));
                         break;
                     default: reader.skipField();
                 }

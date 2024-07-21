@@ -53,9 +53,9 @@ func parseServerInfo(serverAddress string) (map[string]interface{}, error) {
 	return serverData, nil
 }
 
-func (s *Service) GetServersInfo() (map[string]config.Servers, error) {
+func (s *Service) GetServersInfo() ([]config.Servers, error) {
 	servers := s.Cfg.Servers
-	serversInfo := make(map[string]config.Servers)
+	serversInfo := []config.Servers{}
 
 	defer rec.Recovery()
 
@@ -78,7 +78,7 @@ func (s *Service) GetServersInfo() (map[string]config.Servers, error) {
 
 		server.Online = playersData["online"].(float64)
 		server.MaxOnline = playersData["max"].(float64)
-		serversInfo[server.Name] = server
+		serversInfo = append(serversInfo, server)
 	}
 
 	if len(servers) == 0 {

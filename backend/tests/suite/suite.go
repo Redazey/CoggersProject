@@ -32,7 +32,7 @@ func New(t *testing.T) (context.Context, *Suite) {
 	t.Parallel() // Разрешаем параллельный запуск тестов
 
 	// Читаем конфиг из файла
-	env, _, err := config.NewConfig("../../.env")
+	env, err := config.NewEnv("../../.env")
 	if err != nil {
 		t.Fatalf("ошибка при инициализации файла конфигурации: %s", err)
 	}
