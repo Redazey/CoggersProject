@@ -7,11 +7,18 @@ import (
 	"CoggersProject/pkg/logger"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
+	"sync"
 
+	"github.com/Tnze/go-mc/bot"
 	"go.uber.org/zap"
 )
+
+type parsedData struct {
+	Players struct {
+		MaxOnline int `json:"max"`
+		Online    int `json:"online"`
+	}
+}
 
 type Service struct {
 	Cfg *config.Configuration
@@ -23,63 +30,42 @@ func New(cfg *config.Configuration) *Service {
 	}
 }
 
-// Сюда передаем адрес сервера в формате string "https://api.mcsrvstat.us/3/mc.hypixel.net"
-func parseServerInfo(serverAddress string) (map[string]interface{}, error) {
-	var serverData map[string]interface{}
-
-	response, err := http.Get(fmt.Sprintf("https://api.mcsrvstat.us/3/%s", serverAddress))
+func parseServerInfo(serverAddress string) (*parsedData, error) {
+	response, _, err := bot.PingAndList(serverAddress)
 	if err != nil {
-		fmt.Println("Ошибка при отправке запроса:", err)
+		fmt.Println("Ошибка при пинге сервера:", err)
 		return nil, err
 	}
-
-	defer response.Body.Close()
-
-	serviceResponse, err := io.ReadAll(response.Body)
-	if err != nil {
-		logger.Error("произошла ошибка при получении данных от серверу: ", zap.Error(err))
-		return nil, err
-	}
-
-	err = json.Unmarshal(serviceResponse, &serverData)
-	if err != nil {
-		logger.Error("произошла ошибка при пробразовании из json формата: ", zap.Error(err))
-
-		logStr := fmt.Sprintf("содержание response: %s", serviceResponse)
-		logger.Debug(logStr)
-		return nil, err
-	}
+	var serverData *parsedData
+	json.Unmarshal(response, &serverData)
 
 	return serverData, nil
 }
 
 func (s *Service) GetServersInfo() ([]config.Servers, error) {
 	servers := s.Cfg.Servers
-	serversInfo := []config.Servers{}
+	var wg sync.WaitGroup
+	serversInfo := make([]config.Servers, len(servers))
 
 	defer rec.Recovery()
 
-	for key, server := range servers {
-		serverInfo, err := parseServerInfo(server.Adress)
-		if err != nil {
-			logStr := fmt.Sprintf("не удалось получить данные о сервере %s, ошибка: ", server.Name)
-			logger.Error(logStr, zap.Error(err))
-			continue
-		}
+	for i, server := range servers {
+		wg.Add(1)
+		go func(i int, server config.Servers) {
+			defer wg.Done()
+			serverInfo, err := parseServerInfo(server.Adress)
+			if err != nil {
+				logStr := fmt.Sprintf("не удалось получить данные о сервере %s, ошибка: ", server.Name)
+				logger.Error(logStr, zap.Error(err))
+				return
+			}
 
-		serverStatus := serverInfo["online"]
-		if serverStatus == false {
-			logStr := fmt.Sprintf("Сервер %v не отвечает", key)
-			logger.Warn(logStr)
-			continue
-		}
-
-		playersData := serverInfo["players"].(map[string]interface{})
-
-		server.Online = playersData["online"].(float64)
-		server.MaxOnline = playersData["max"].(float64)
-		serversInfo = append(serversInfo, server)
+			server.Online = serverInfo.Players.Online
+			server.MaxOnline = serverInfo.Players.MaxOnline
+			serversInfo[i] = server
+		}(i, server)
 	}
+	wg.Wait()
 
 	if len(servers) == 0 {
 		return nil, errorz.ErrServerIsNotResponse

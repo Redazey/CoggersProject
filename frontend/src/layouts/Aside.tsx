@@ -2,7 +2,6 @@ import React, {useState, useEffect, useCallback} from "react";
 import { Link } from 'react-router-dom';
 import {RpcError} from "grpc-web";
 import {ServerInfo, getServersInfo} from '../components/gRPC/servParser/grpcServParser'
-import serversConfig from '../config/servers.json'
 
 interface ServerCardProps {
     server: ServerInfo;
@@ -61,12 +60,11 @@ const Aside: React.FC = () => {
     }, [loading, end]);
 
     useEffect(() => {
-        setServerInfo(serversConfig.servers);
         fetchServersInfo();
 
         const interval = setInterval(() => {
             fetchServersInfo();
-        }, 5000);
+        }, 60000);
 
         // Очистка интервала при размонтировании компонента
         return () => {

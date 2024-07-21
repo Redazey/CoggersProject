@@ -48,8 +48,8 @@ type Servers struct {
 	Adress    string `json:"Adress"`
 	Name      string `json:"Name"`
 	Version   string `json:"Version"`
-	Online    float64
-	MaxOnline float64
+	Online    int
+	MaxOnline int
 }
 
 var config Configuration
